@@ -19,7 +19,7 @@
         </activity>
         <activity android:name=".FindNewDataActivity" />
         <activity android:name=".FindFoundDataActivity" />
-        <activity android:name=".FindNoDataActivity"></activity>
+        <activity android:name=".FindNoDataActivity" />
     </application>
 
 </manifest>
