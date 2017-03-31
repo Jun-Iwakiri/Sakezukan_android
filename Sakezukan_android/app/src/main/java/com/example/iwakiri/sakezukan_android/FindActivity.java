@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class FindActivity extends AppCompatActivity {
+public class FindActivity extends AppCompatActivity implements View.OnClickListener {
 
     Boolean isExist;
     Boolean isFound;
@@ -20,6 +20,17 @@ public class FindActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find);
+
+        Button homeButton = (Button) findViewById(R.id.button21);
+        Button guideButton = (Button) findViewById(R.id.button20);
+        Button tasteButton = (Button) findViewById(R.id.button19);
+        Button findButton = (Button) findViewById(R.id.button18);
+        Button helpButton = (Button) findViewById(R.id.button17);
+        homeButton.setOnClickListener(this);
+        guideButton.setOnClickListener(this);
+        tasteButton.setOnClickListener(this);
+        findButton.setOnClickListener(this);
+        helpButton.setOnClickListener(this);
 
         editText = (EditText) findViewById(R.id.edittext);
         button = (Button) findViewById(R.id.button);
@@ -70,6 +81,37 @@ public class FindActivity extends AppCompatActivity {
             }
         } else {
             Toast.makeText(getApplicationContext(), "0,1,2以外", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button21:
+                Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+                startActivity(homeIntent);
+                finish();
+                break;
+            case R.id.button20:
+                Intent guideIntent = new Intent(getApplicationContext(), GuideActivity.class);
+                startActivity(guideIntent);
+                finish();
+                break;
+            case R.id.button19:
+                Intent tasteIntent = new Intent(getApplicationContext(), TasteActivity.class);
+                startActivity(tasteIntent);
+                finish();
+                break;
+            case R.id.button18:
+                Intent findIntent = new Intent(getApplicationContext(), FindActivity.class);
+                startActivity(findIntent);
+                finish();
+                break;
+            case R.id.button17:
+                Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
+                startActivity(helpIntent);
+                finish();
+                break;
         }
     }
 }

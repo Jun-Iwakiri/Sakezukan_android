@@ -31,22 +31,27 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button6:
                 Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
                 startActivity(homeIntent);
+                finish();
                 break;
             case R.id.button5:
                 Intent guideIntent = new Intent(getApplicationContext(), GuideActivity.class);
                 startActivity(guideIntent);
+                finish();
                 break;
             case R.id.button4:
                 Intent tasteIntent = new Intent(getApplicationContext(), TasteActivity.class);
                 startActivity(tasteIntent);
+                finish();
                 break;
             case R.id.button3:
                 Intent findIntent = new Intent(getApplicationContext(), FindActivity.class);
                 startActivity(findIntent);
+                finish();
                 break;
             case R.id.button2:
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
+                finish();
                 break;
         }
     }
