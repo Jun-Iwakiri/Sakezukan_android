@@ -18,11 +18,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         Button tasteButton = (Button) findViewById(R.id.button4);
         Button findButton = (Button) findViewById(R.id.button3);
         Button helpButton = (Button) findViewById(R.id.button2);
+        Button homeUserInfoButton = (Button) findViewById(R.id.button27);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
+        homeUserInfoButton.setOnClickListener(this);
     }
 
     @Override
@@ -52,6 +54,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
                 finish();
+                break;
+            case R.id.button27:
+                Intent homeUserInfoIntent = new Intent(getApplicationContext(), HomeUserInfoActivity.class);
+                startActivity(homeUserInfoIntent);
                 break;
         }
     }
