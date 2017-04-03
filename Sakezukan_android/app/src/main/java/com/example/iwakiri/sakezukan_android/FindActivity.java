@@ -10,9 +10,9 @@ import android.widget.Toast;
 
 public class FindActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Boolean isExist;
+    Boolean isDataExist;
+    Boolean isTasted;
     Boolean isFound;
-    Button button;
     EditText editText;
     String str;
 
@@ -33,8 +33,8 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
         helpButton.setOnClickListener(this);
 
         editText = (EditText) findViewById(R.id.edittext);
-        button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
+        Button searchButton = (Button) findViewById(R.id.button);
+        searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 defineData();
@@ -44,43 +44,64 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void defineData() {
-        isExist = null;
+        isDataExist = null;
         isFound = null;
+        isTasted = null;
         str = null;
 
         str = editText.getText().toString().trim();
         switch (str) {
             case "0":
-                isExist = true;
+                //既発見既飲酒
+                isDataExist = true;
                 isFound = true;
+                isTasted = true;
                 break;
             case "1":
-                isExist = true;
-                isFound = false;
+                //既発見未飲酒
+                isDataExist = true;
+                isFound = true;
+                isTasted = false;
                 break;
             case "2":
-                isExist = false;
+                //未発見
+                isDataExist = true;
                 isFound = false;
                 break;
+            case "3":
+                //非該当
+                isDataExist = false;
         }
     }
 
     private void searchData() {
         if (!str.isEmpty()) {
-            if (isExist) {
+            if (isDataExist) {
                 if (isFound) {
-                    Intent intent = new Intent(this, FindNewDataActivity.class);
-                    startActivity(intent);
+                    if (isTasted) {
+                        //既に見つけていて飲んでいる
+                        Intent intent = new Intent(this, FindFoundDataActivity.class);
+                        intent.putExtra("Tasted", isTasted);
+                        startActivity(intent);
+                    } else {
+                        //既に見つけているが飲んでいない
+                        Intent intent = new Intent(this, FindFoundDataActivity.class);
+                        intent.putExtra("Tasted", isTasted);
+                        startActivity(intent);
+                    }
                 } else {
-                    Intent intent = new Intent(this, FindFoundDataActivity.class);
+                    //始めて見つけた
+                    Intent intent = new Intent(this, FindNewDataActivity.class);
                     startActivity(intent);
                 }
             } else {
+                //マスターデータそのものがない
                 Intent intent = new Intent(this, FindNoDataActivity.class);
                 startActivity(intent);
             }
         } else {
-            Toast.makeText(getApplicationContext(), "0,1,2以外", Toast.LENGTH_SHORT).show();
+            //適切な文字列を入れていない
+            Toast.makeText(this, "不当な文字列", Toast.LENGTH_SHORT).show();
         }
     }
 
