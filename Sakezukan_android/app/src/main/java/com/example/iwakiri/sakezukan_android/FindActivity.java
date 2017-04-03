@@ -13,6 +13,7 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
     Boolean isDataExist;
     Boolean isTasted;
     Boolean isFound;
+    Button searchButton;
     EditText editText;
     String str;
 
@@ -33,7 +34,7 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
         helpButton.setOnClickListener(this);
 
         editText = (EditText) findViewById(R.id.edittext);
-        Button searchButton = (Button) findViewById(R.id.button);
+        searchButton = (Button) findViewById(R.id.button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,7 +69,7 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                 isDataExist = true;
                 isFound = false;
                 break;
-            case "3":
+            default:
                 //非該当
                 isDataExist = false;
         }

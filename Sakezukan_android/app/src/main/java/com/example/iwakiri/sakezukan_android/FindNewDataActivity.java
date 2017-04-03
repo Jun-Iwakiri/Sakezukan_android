@@ -8,12 +8,14 @@ import android.widget.Button;
 
 public class FindNewDataActivity extends AppCompatActivity {
 
+    Button tasteButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_new_data);
 
-        Button tasteButton = (Button) findViewById(R.id.button28);
+        tasteButton = (Button) findViewById(R.id.button28);
         tasteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
