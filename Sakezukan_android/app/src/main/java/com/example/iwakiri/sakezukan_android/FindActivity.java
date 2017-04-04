@@ -13,7 +13,6 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
     Boolean isDataExist;
     Boolean isTasted;
     Boolean isFound;
-    Button searchButton;
     EditText editText;
     String str;
 
@@ -27,21 +26,15 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
         Button tasteButton = (Button) findViewById(R.id.button19);
         Button findButton = (Button) findViewById(R.id.button18);
         Button helpButton = (Button) findViewById(R.id.button17);
+        Button searchButton = (Button) findViewById(R.id.button);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
+        searchButton.setOnClickListener(this);
 
         editText = (EditText) findViewById(R.id.edittext);
-        searchButton = (Button) findViewById(R.id.button);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                defineData();
-                searchData();
-            }
-        });
     }
 
     private void defineData() {
@@ -133,6 +126,10 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
                 finish();
+                break;
+            case R.id.button:
+                defineData();
+                searchData();
                 break;
         }
     }

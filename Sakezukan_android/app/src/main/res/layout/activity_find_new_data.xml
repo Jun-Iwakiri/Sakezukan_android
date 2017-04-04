@@ -44,35 +44,35 @@
         app:layout_constraintRight_toRightOf="parent">
 
         <Button
-
+            android:id="@+id/button32"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="home" />
 
         <Button
-
+            android:id="@+id/button33"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="guide" />
 
         <Button
-
+            android:id="@+id/button34"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="taste" />
 
         <Button
-
+            android:id="@+id/button35"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="find" />
 
         <Button
-
+            android:id="@+id/button36"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

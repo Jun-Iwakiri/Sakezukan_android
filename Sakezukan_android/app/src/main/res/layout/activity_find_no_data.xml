@@ -69,35 +69,35 @@
         app:layout_constraintRight_toRightOf="parent">
 
         <Button
-
+            android:id="@+id/button42"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="home" />
 
         <Button
-
+            android:id="@+id/button43"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="guide" />
 
         <Button
-
+            android:id="@+id/button44"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="taste" />
 
         <Button
-
+            android:id="@+id/button45"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="find" />
 
         <Button
-
+            android:id="@+id/button46"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

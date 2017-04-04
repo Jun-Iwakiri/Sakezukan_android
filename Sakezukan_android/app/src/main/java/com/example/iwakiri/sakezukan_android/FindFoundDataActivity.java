@@ -9,13 +9,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FindFoundDataActivity extends AppCompatActivity {
+public class FindFoundDataActivity extends AppCompatActivity implements View.OnClickListener {
 
     Boolean isDataExist;
     Boolean isFound;
     Boolean isTasted;
-    Button searchButton;
-    Button tasteButton;
     EditText editText;
     TextView textView;
     String str;
@@ -25,32 +23,30 @@ public class FindFoundDataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_found_data);
 
+        Button homeButton = (Button) findViewById(R.id.button37);
+        Button guideButton = (Button) findViewById(R.id.button38);
+        Button tasteButton = (Button) findViewById(R.id.button39);
+        Button findButton = (Button) findViewById(R.id.button40);
+        Button helpButton = (Button) findViewById(R.id.button41);
+        Button searchButton = (Button) findViewById(R.id.button29);
+        Button goTasteButton = (Button) findViewById(R.id.button30);
+        homeButton.setOnClickListener(this);
+        guideButton.setOnClickListener(this);
+        tasteButton.setOnClickListener(this);
+        findButton.setOnClickListener(this);
+        helpButton.setOnClickListener(this);
+        searchButton.setOnClickListener(this);
+        goTasteButton.setOnClickListener(this);
+
         textView = (TextView) findViewById(R.id.textView2);
 
         editText = (EditText) findViewById(R.id.edittext2);
-        searchButton = (Button) findViewById(R.id.button29);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                defineData();
-                searchData();
-            }
-        });
-        tasteButton = (Button) findViewById(R.id.button30);
-        tasteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), TasteActivity.class);
-                startActivity(intent);
-            }
-        });
-
 
         Intent intent = getIntent();
         isTasted = intent.getBooleanExtra("Tasted", false);
         if (isTasted) {
             Toast.makeText(getApplicationContext(), "既飲酒", Toast.LENGTH_LONG).show();
-            tasteButton.setVisibility(View.GONE);
+            goTasteButton.setVisibility(View.GONE);
         } else {
             Toast.makeText(getApplicationContext(), "未飲酒", Toast.LENGTH_LONG).show();
             textView.setText("以前見つけたお酒です。飲んでみましたか？");
@@ -62,7 +58,6 @@ public class FindFoundDataActivity extends AppCompatActivity {
         isFound = null;
         isTasted = null;
         str = null;
-
         str = editText.getText().toString().trim();
         switch (str) {
             case "0":
@@ -116,6 +111,44 @@ public class FindFoundDataActivity extends AppCompatActivity {
         } else {
             //適切な文字列を入れていない
             Toast.makeText(this, "不当な文字列", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button37:
+                Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+                startActivity(homeIntent);
+                finish();
+                break;
+            case R.id.button38:
+                Intent guideIntent = new Intent(getApplicationContext(), GuideActivity.class);
+                startActivity(guideIntent);
+                finish();
+                break;
+            case R.id.button39:
+                Intent tasteIntent = new Intent(getApplicationContext(), TasteActivity.class);
+                startActivity(tasteIntent);
+                finish();
+                break;
+            case R.id.button40:
+                Intent findIntent = new Intent(getApplicationContext(), FindActivity.class);
+                startActivity(findIntent);
+                finish();
+                break;
+            case R.id.button41:
+                Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
+                startActivity(helpIntent);
+                finish();
+                break;
+            case R.id.button29:
+                defineData();
+                searchData();
+                break;
+            case R.id.button30:
+                Intent intent = new Intent(getApplicationContext(), TasteActivity.class);
+                startActivity(intent);
         }
     }
 }
