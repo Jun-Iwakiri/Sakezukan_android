@@ -23,7 +23,10 @@
         <activity android:name=".GuideActivity" />
         <activity android:name=".TasteActivity" />
         <activity android:name=".HelpActivity" />
-        <activity android:name=".HomeUserInfoActivity"></activity>
+        <activity android:name=".HomeUserInfoActivity" />
+        <activity android:name=".TasteNewDataActivity" />
+        <activity android:name=".TasteTastedDataActivity" />
+        <activity android:name=".TasteNoDataActivity"></activity>
     </application>
 
 </manifest>

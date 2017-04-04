@@ -67,7 +67,6 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                 isDataExist = false;
         }
     }
-
     private void searchData() {
         if (!str.isEmpty()) {
             if (isDataExist) {

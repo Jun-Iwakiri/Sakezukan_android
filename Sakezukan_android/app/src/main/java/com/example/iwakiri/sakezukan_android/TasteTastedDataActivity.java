@@ -6,18 +6,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class TasteActivity extends AppCompatActivity implements View.OnClickListener {
+public class TasteTastedDataActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_taste);
+        setContentView(R.layout.activity_taste_tasted_data);
 
-        Button homeButton = (Button) findViewById(R.id.button16);
-        Button guideButton = (Button) findViewById(R.id.button15);
-        Button tasteButton = (Button) findViewById(R.id.button14);
-        Button findButton = (Button) findViewById(R.id.button13);
-        Button helpButton = (Button) findViewById(R.id.button12);
+        Button homeButton = (Button) findViewById(R.id.button68);
+        Button guideButton = (Button) findViewById(R.id.button67);
+        Button tasteButton = (Button) findViewById(R.id.button66);
+        Button findButton = (Button) findViewById(R.id.button65);
+        Button helpButton = (Button) findViewById(R.id.button64);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
@@ -28,27 +28,27 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.button16:
+            case R.id.button68:
                 Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
                 startActivity(homeIntent);
                 finish();
                 break;
-            case R.id.button15:
+            case R.id.button67:
                 Intent guideIntent = new Intent(getApplicationContext(), GuideActivity.class);
                 startActivity(guideIntent);
                 finish();
                 break;
-            case R.id.button14:
+            case R.id.button66:
                 Intent tasteIntent = new Intent(getApplicationContext(), TasteActivity.class);
                 startActivity(tasteIntent);
                 finish();
                 break;
-            case R.id.button13:
+            case R.id.button65:
                 Intent findIntent = new Intent(getApplicationContext(), FindActivity.class);
                 startActivity(findIntent);
                 finish();
                 break;
-            case R.id.button12:
+            case R.id.button64:
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
                 finish();
