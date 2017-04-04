@@ -5,8 +5,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 public class TasteNoDataActivity extends AppCompatActivity implements View.OnClickListener {
+
+    Boolean isDataExist;
+    Boolean isTasted;
+    Boolean isFound;
+    EditText editText;
+    String str;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,11 +26,17 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
         Button tasteButton = (Button) findViewById(R.id.button61);
         Button findButton = (Button) findViewById(R.id.button60);
         Button helpButton = (Button) findViewById(R.id.button59);
+        Button searchButton = (Button) findViewById(R.id.button72);
+        Button goNewDataButton = (Button) findViewById(R.id.button73);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
+        searchButton.setOnClickListener(this);
+        goNewDataButton.setOnClickListener(this);
+
+        editText = (EditText) findViewById(R.id.edittext5);
     }
 
     @Override
@@ -53,6 +67,75 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
                 startActivity(helpIntent);
                 finish();
                 break;
+            case R.id.button72:
+                defineData();
+                searchData();
+                break;
+            case R.id.button73:
+                Intent intent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                String str = "新規登録申請して登録";
+                intent.putExtra("Requested", str);
+                startActivity(intent);
+                finish();
+                break;
+        }
+    }
+
+    private void searchData() {
+        if (!str.isEmpty()) {
+            if (isDataExist) {
+                if (isTasted) {
+                    Intent intent = new Intent(this, TasteTastedDataActivity.class);
+                    startActivity(intent);
+                } else {
+                    if (isFound) {
+                        Intent intent = new Intent(this, TasteNewDataActivity.class);
+                        intent.putExtra("Found", isFound);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(this, TasteNewDataActivity.class);
+                        intent.putExtra("Found", isFound);
+                        startActivity(intent);
+                    }
+                }
+            } else {
+                Intent intent = new Intent(this, TasteNoDataActivity.class);
+                startActivity(intent);
+            }
+        } else {
+            Toast.makeText(this, "不当な文字列", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void defineData() {
+        isDataExist = null;
+        isFound = null;
+        isTasted = null;
+        str = null;
+
+        str = editText.getText().toString().trim();
+        switch (str) {
+            case "0":
+                //既発見既飲酒
+                isDataExist = true;
+                isFound = true;
+                isTasted = true;
+                break;
+            case "1":
+                //既発見未飲酒
+                isDataExist = true;
+                isFound = true;
+                isTasted = false;
+                break;
+            case "2":
+                //未発見
+                isDataExist = true;
+                isFound = false;
+                isTasted = false;
+                break;
+            default:
+                //非該当
+                isDataExist = false;
         }
     }
 }

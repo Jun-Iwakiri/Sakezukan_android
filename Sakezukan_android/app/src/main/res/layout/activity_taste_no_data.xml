@@ -6,23 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.example.iwakiri.sakezukan_android.TasteNoDataActivity">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/textInputLayout4"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <EditText
-            android:id="@+id/edittext4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="hint" />
-    </android.support.design.widget.TextInputLayout>
-
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -73,8 +56,36 @@
             android:text="help" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/textView18"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="は見つかりませんでした。"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInputLayout5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.328">
+
+        <EditText
+            android:id="@+id/edittext5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="hint" />
+    </android.support.design.widget.TextInputLayout>
+
     <Button
-        android:id="@+id/button69"
+        android:id="@+id/button72"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -82,17 +93,27 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout4"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout5"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView13"
+        android:id="@+id/textView19"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="0:新発見未飲酒1:既発見未飲酒2:既発見既飲酒3以降:非該当"
-        app:layout_constraintBottom_toTopOf="@+id/textInputLayout4"
+        android:text="0:既発見既飲酒1:既発見未飲酒2:未発見3以上:非該当"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout5"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/button73"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="新規登録申請して登録"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button72" />
 
 </android.support.constraint.ConstraintLayout>

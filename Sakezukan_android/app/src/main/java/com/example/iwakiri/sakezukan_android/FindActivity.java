@@ -11,8 +11,8 @@ import android.widget.Toast;
 public class FindActivity extends AppCompatActivity implements View.OnClickListener {
 
     Boolean isDataExist;
-    Boolean isTasted;
     Boolean isFound;
+    Boolean isTasted;
     EditText editText;
     String str;
 
@@ -61,12 +61,14 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                 //未発見
                 isDataExist = true;
                 isFound = false;
+                isTasted = false;
                 break;
             default:
                 //非該当
                 isDataExist = false;
         }
     }
+
     private void searchData() {
         if (!str.isEmpty()) {
             if (isDataExist) {

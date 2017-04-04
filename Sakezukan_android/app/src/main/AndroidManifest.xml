@@ -26,7 +26,8 @@
         <activity android:name=".HomeUserInfoActivity" />
         <activity android:name=".TasteNewDataActivity" />
         <activity android:name=".TasteTastedDataActivity" />
-        <activity android:name=".TasteNoDataActivity"></activity>
+        <activity android:name=".TasteNoDataActivity" />
+        <activity android:name=".TasteRegisteredDataActivity"></activity>
     </application>
 
 </manifest>
