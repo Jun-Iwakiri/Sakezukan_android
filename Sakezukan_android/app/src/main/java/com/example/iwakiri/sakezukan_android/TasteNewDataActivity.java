@@ -10,9 +10,6 @@ import android.widget.Toast;
 
 public class TasteNewDataActivity extends AppCompatActivity implements View.OnClickListener {
 
-    boolean isFound;
-    String str;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,17 +30,20 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
 
         TextView textView = (TextView) findViewById(R.id.textView15);
         Intent intent = getIntent();
-        isFound = intent.getBooleanExtra("Found", false);
-        if (isFound) {
-            Toast.makeText(getApplicationContext(), "既発見未飲酒", Toast.LENGTH_SHORT).show();
-            textView.setText("既に見つけていたお酒です");
-        } else {
-            Toast.makeText(getApplicationContext(), "未発見未飲酒", Toast.LENGTH_SHORT).show();
-            textView.setText("新発見情報の表示");
+        int massage = intent.getIntExtra("massage", 0);
+        switch (massage) {
+            case 1:
+                Toast.makeText(getApplicationContext(), "既発見未飲酒", Toast.LENGTH_SHORT).show();
+                textView.setText("既に見つけていた銘柄です。");
+                break;
+            case 2:
+                Toast.makeText(getApplicationContext(), "未発見未飲酒", Toast.LENGTH_SHORT).show();
+                textView.setText("新発見情報の表示");
+                break;
+            case 3:
+                textView.setText("新規登録申請して登録");
+                break;
         }
-
-        str = intent.getStringExtra("Requested");
-        textView.setText(str);
     }
 
     @Override

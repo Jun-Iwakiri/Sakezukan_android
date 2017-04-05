@@ -80,12 +80,14 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
                     startActivity(intent);
                 } else {
                     if (isFound) {
+                        //初発見初飲酒
                         Intent intent = new Intent(this, TasteNewDataActivity.class);
-                        intent.putExtra("Found", isFound);
+                        intent.putExtra("massage", 1);
                         startActivity(intent);
                     } else {
+                        //初発見飲酒済
                         Intent intent = new Intent(this, TasteNewDataActivity.class);
-                        intent.putExtra("Found", isFound);
+                        intent.putExtra("massage", 2);
                         startActivity(intent);
                     }
                 }
@@ -107,19 +109,19 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
         str = editText.getText().toString().trim();
         switch (str) {
             case "0":
-                //既発見既飲酒
+                //発見済飲酒済
                 isDataExist = true;
                 isFound = true;
                 isTasted = true;
                 break;
             case "1":
-                //既発見未飲酒
+                //発見済初飲酒
                 isDataExist = true;
                 isFound = true;
                 isTasted = false;
                 break;
             case "2":
-                //未発見
+                //初発見
                 isDataExist = true;
                 isFound = false;
                 isTasted = false;
