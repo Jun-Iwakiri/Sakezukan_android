@@ -41,9 +41,9 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
             Toast.makeText(getApplicationContext(), "未発見未飲酒", Toast.LENGTH_SHORT).show();
             textView.setText("新発見情報の表示");
         }
-//
-//        str = intent.getStringExtra("Requested");
-//        textView.setText(str);
+
+        str = intent.getStringExtra("Requested");
+        textView.setText(str);
     }
 
     @Override

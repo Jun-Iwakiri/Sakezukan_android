@@ -73,8 +73,8 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.button73:
                 Intent intent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
-                String str = "新規登録申請して登録";
-                intent.putExtra("Requested", str);
+                String str2 = "新規登録申請して登録";
+                intent.putExtra("Requested", str2);
                 startActivity(intent);
                 finish();
                 break;
