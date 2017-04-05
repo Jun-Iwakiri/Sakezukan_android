@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class TasteNewDataActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -30,7 +29,7 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
 
         TextView textView = (TextView) findViewById(R.id.textView15);
         Intent intent = getIntent();
-        int massage = intent.getIntExtra("massage", 100);
+        int massage = intent.getIntExtra("message", 100);
         switch (massage) {
             case 0:
                 textView.setText("追加登録");
@@ -39,7 +38,7 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
                 textView.setText("既に見つけていた銘柄です。");
                 break;
             case 2:
-                textView.setText("新発見情報の表示");
+                textView.setText("ここに発見した情報を表示");
                 break;
             case 3:
                 textView.setText("新規登録申請して登録");

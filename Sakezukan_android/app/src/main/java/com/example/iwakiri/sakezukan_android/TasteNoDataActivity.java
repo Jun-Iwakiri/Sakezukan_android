@@ -91,12 +91,12 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
                     if (isFound) {
                         //初発見初飲酒
                         Intent intent = new Intent(this, TasteNewDataActivity.class);
-                        intent.putExtra("massage", 1);
+                        intent.putExtra("message", 1);
                         startActivity(intent);
                     } else {
                         //初発見飲酒済
                         Intent intent = new Intent(this, TasteNewDataActivity.class);
-                        intent.putExtra("massage", 2);
+                        intent.putExtra("message", 2);
                         startActivity(intent);
                     }
                 }

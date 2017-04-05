@@ -56,8 +56,10 @@ public class FindNewDataActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.button28:
-                Intent intent = new Intent(getApplicationContext(), TasteActivity.class);
-                startActivity(intent);
+                Intent goTasteNewDataIntent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                goTasteNewDataIntent.putExtra("message", 2);
+                startActivity(goTasteNewDataIntent);
+                break;
         }
     }
 }
