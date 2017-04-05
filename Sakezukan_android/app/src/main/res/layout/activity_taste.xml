@@ -90,7 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="0:既発見既飲酒1:既発見未飲酒2:未発見3以上:非該当"
+        android:text="0:発見済飲酒済1:発見済初飲酒2:初発見3以上:非該当"
         app:layout_constraintBottom_toTopOf="@+id/textInputLayout4"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

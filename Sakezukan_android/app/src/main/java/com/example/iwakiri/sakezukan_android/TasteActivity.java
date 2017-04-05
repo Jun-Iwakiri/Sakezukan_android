@@ -96,7 +96,7 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(intent);
             }
         } else {
-            Toast.makeText(this, "不当な文字列", Toast.LENGTH_SHORT);
+            Toast.makeText(this, "不当な文字列", Toast.LENGTH_SHORT).show();
         }
     }
 

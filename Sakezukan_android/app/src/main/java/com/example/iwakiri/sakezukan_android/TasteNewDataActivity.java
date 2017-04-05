@@ -30,14 +30,15 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
 
         TextView textView = (TextView) findViewById(R.id.textView15);
         Intent intent = getIntent();
-        int massage = intent.getIntExtra("massage", 0);
+        int massage = intent.getIntExtra("massage", 100);
         switch (massage) {
+            case 0:
+                textView.setText("追加登録");
+                break;
             case 1:
-                Toast.makeText(getApplicationContext(), "既発見未飲酒", Toast.LENGTH_SHORT).show();
                 textView.setText("既に見つけていた銘柄です。");
                 break;
             case 2:
-                Toast.makeText(getApplicationContext(), "未発見未飲酒", Toast.LENGTH_SHORT).show();
                 textView.setText("新発見情報の表示");
                 break;
             case 3:
@@ -77,6 +78,7 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
             case R.id.button70:
                 Intent registrationIntent = new Intent(getApplicationContext(), TasteRegisteredDataActivity.class);
                 startActivity(registrationIntent);
+                break;
         }
     }
 }
