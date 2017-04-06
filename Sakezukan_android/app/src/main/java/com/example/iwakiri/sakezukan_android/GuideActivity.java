@@ -18,11 +18,15 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
         Button tasteButton = (Button) findViewById(R.id.button9);
         Button findButton = (Button) findViewById(R.id.button8);
         Button helpButton = (Button) findViewById(R.id.button7);
+        Button noTastedButton = (Button) findViewById(R.id.button76);
+        Button tastedButton = (Button) findViewById(R.id.button77);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
+        noTastedButton.setOnClickListener(this);
+        tastedButton.setOnClickListener(this);
     }
 
     @Override
@@ -52,6 +56,12 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
                 finish();
+                break;
+            case R.id.button76:
+                Intent intent = new Intent(getApplicationContext(), GuideDetailActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.button77:
                 break;
         }
     }
