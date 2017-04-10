@@ -59,11 +59,13 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.button76:
                 Intent notTastedIntent = new Intent(getApplicationContext(), GuideDetailActivity.class);
+                notTastedIntent.putExtra("tasted", false);
                 startActivity(notTastedIntent);
                 break;
             case R.id.button77:
-                Intent TastedIntent = new Intent(getApplicationContext(), GuideDetailActivity.class);
-                startActivity(TastedIntent);
+                Intent tastedIntent = new Intent(getApplicationContext(), GuideDetailActivity.class);
+                tastedIntent.putExtra("tasted", true);
+                startActivity(tastedIntent);
                 break;
         }
     }
