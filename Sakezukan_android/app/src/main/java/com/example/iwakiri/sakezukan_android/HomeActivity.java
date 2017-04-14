@@ -1,6 +1,8 @@
 package com.example.iwakiri.sakezukan_android;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,6 +27,14 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
         homeUserInfoButton.setOnClickListener(this);
+
+        DataBaseOpenHelper dataBaseOpenHelper = new DataBaseOpenHelper(getApplicationContext());
+        SQLiteDatabase db = dataBaseOpenHelper.getWritableDatabase();
+
+        Cursor c = db.query("userinfo", new String[]{"brand"}, null, null, null, null, null);
+        if (c.moveToFirst()) {
+
+        }
     }
 
     @Override

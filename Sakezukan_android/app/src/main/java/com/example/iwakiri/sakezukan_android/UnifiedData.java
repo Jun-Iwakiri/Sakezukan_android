@@ -4,7 +4,7 @@ package com.example.iwakiri.sakezukan_android;
  * Created by iwakiri on 2017/04/13.
  */
 
-public class Data {
+public class UnifiedData {
     private int userInfoId;
     private String licenseName;
     private int licenseNumber;
