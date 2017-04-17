@@ -32,7 +32,8 @@ public class UnifiedDataColumns {
         public static final String COLUMN_FLAVOR_GRADE = "flavor_grade";
         public static final String COLUMN_TASTE_GRADE = "taste_grade";
         public static final String COLUMN_REVIEW = "review";
+        public static final String COLUMN_INFORMATION_BODY = "information_body";
         public static final String COLUMN_HELP_BODY = "help_body";
-        public static final String COLUMNE_INFORMATION_BODY = "information_body";
     }
 }
+
