@@ -27,7 +27,7 @@ public class UnifiedData {
     private int helpId;
     private String helpBody;
     private int informationId;
-    private String infromationBody;
+    private String informationBody;
 
     public int getUserInfoId() {
         return userInfoId;
@@ -118,7 +118,7 @@ public class UnifiedData {
     }
 
     public String getInformationBody() {
-        return infromationBody;
+        return informationBody;
     }
 
     public void setUserInfoId(int userInfoId) {
@@ -210,7 +210,7 @@ public class UnifiedData {
     }
 
     public void setInformationBody(String infromationBody) {
-        this.infromationBody = infromationBody;
+        this.informationBody = infromationBody;
     }
 
     public void getUserInfo() {
