@@ -28,13 +28,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         helpButton.setOnClickListener(this);
         homeUserInfoButton.setOnClickListener(this);
 
-        DataBaseOpenHelper dataBaseOpenHelper = new DataBaseOpenHelper(getApplicationContext());
-        SQLiteDatabase db = dataBaseOpenHelper.getWritableDatabase();
-
-        Cursor c = db.query("userinfo", new String[]{"brand"}, null, null, null, null, null);
-        if (c.moveToFirst()) {
-
-        }
+//        UnifiedDataOpenHelper unifiedDataOpenHelper = new UnifiedDataOpenHelper(getApplicationContext());
+//        SQLiteDatabase db = unifiedDataOpenHelper.getWritableDatabase();
+//
+//        Cursor cursor = db.query("userinfo", new String[]{"brand"}, null, null, null, null, null);
+//        if (cursor.moveToFirst()) {
+//
+//        }
     }
 
     @Override

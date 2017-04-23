@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Sakezukan_android</string>
+    <string name="no_data_text">%1$sは見つかりませんでした。</string>
 </resources>

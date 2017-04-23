@@ -28,7 +28,13 @@
         <activity android:name=".TasteTastedDataActivity" />
         <activity android:name=".TasteNoDataActivity" />
         <activity android:name=".TasteRegisteredDataActivity" />
-        <activity android:name=".GuideDetailActivity"></activity>
+        <activity android:name=".GuideDetailActivity" />
+
+        <provider
+            android:name=".UnifiedDataContentProvider"
+            android:authorities="com.example.iwakiri.sakezukan_android.UnifiedDataContentProvider"
+            android:enabled="true"
+            android:exported="false"></provider>
     </application>
 
 </manifest>

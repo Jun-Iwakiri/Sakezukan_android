@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by iwakiri on 2017/04/14.
  */
 
-public class DataBaseOpenHelper extends SQLiteOpenHelper {
+public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "android_sakezukan";
     public static final int DB_VERSION = 1;
@@ -16,7 +16,7 @@ public class DataBaseOpenHelper extends SQLiteOpenHelper {
             "create table " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NAME + " text" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NUMBER + " integer";
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NUMBER + " integer)";
 
     public static final String CREATE_TABLE_SAKE =
             "create table " + UnifiedDataColumns.DataColumns.TABLE_SAKE + " (" +
@@ -24,52 +24,61 @@ public class DataBaseOpenHelper extends SQLiteOpenHelper {
                     "," + UnifiedDataColumns.DataColumns.COLUMN_BRAND + " text" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME + " text" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS + " text" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALKOHOL_CONTENT + " real" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALKOHOL_CONTENT + " real" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_CATEGORY + " text";
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT + " real" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT + " real" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_CATEGORY + " text" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND + " integer" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED + " integer" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID + " integer)";
 
     public static final String CREATE_TABLE_USER_RECORDS =
             "create table " + UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND + " datetime" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED + " datetime" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND + " date" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED + " date" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE + " integer" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE + " integer" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_REVIEW + " text";
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_REVIEW + " text)";
+
+    public static final String INIT_TABLE_SAKE =
+            "insert into sake (brand,brewery_name,brewery_address,lower_alcohol_content,upper_alcohol_content,category,has_found,has_tasted,user_records_id) values" +
+                    "('あいうえお:初発見初飲酒','田中酒造','東京','12.3','13.4','純米大吟醸','0','0',null)," +
+                    "('かきくけこ:発見済初飲酒','佐藤酒造','大阪','14.5','15.6','純米酒','1','0',null)," +
+                    "('さしすせそ:発見済飲酒済','山本酒造','北海道','10.1','11.2','大吟醸','1','1','1')," +
+                    "('たちつてと:発見済飲酒済','高橋酒造','沖縄','9.8','10.9','大吟醸','1','1','2')";
+
+    public static final String INIT_TABLE_USER_RECORDS =
+            "insert into user_records (date_found,date_tasted,total_grade,flavor_grade,taste_grade,review) values" +
+                    "('2016-08-26','2016-10-12','3','2','3','さしすせその試飲記録')," +
+                    "('2014-03-21','2016-04-17','4','3','4','たちつてとの試飲記録')";
 
     public static final String CREATE_TABLE_INFORMATIONS =
             "create table " + UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_INFORMATION_BODY + " text";
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_INFORMATION_BODY + " text)";
 
     public static final String CREATE_TABLE_HELP =
             "create table " + UnifiedDataColumns.DataColumns.TABLE_HELP + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HELP_BODY + " text";
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_HELP_BODY + " text)";
 
     public static final String DROP_TABLE_USER_DATA =
             "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
 
     public static final String DROP_TABLE_SAKE =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_SAKE;
 
     public static final String DROP_TABLE_USER_RECORDS =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS;
 
     public static final String DROP_TABLE_INFORMATIONS =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS;
 
     public static final String DROP_TABLE_HELP =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_HELP;
 
-    public DataBaseOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
-    }
-
-    public DataBaseOpenHelper(Context context) {
+    public UnifiedDataOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
@@ -80,6 +89,8 @@ public class DataBaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_USER_RECORDS);
         db.execSQL(CREATE_TABLE_INFORMATIONS);
         db.execSQL(CREATE_TABLE_HELP);
+        db.execSQL(INIT_TABLE_SAKE);
+        db.execSQL(INIT_TABLE_USER_RECORDS);
     }
 
     @Override

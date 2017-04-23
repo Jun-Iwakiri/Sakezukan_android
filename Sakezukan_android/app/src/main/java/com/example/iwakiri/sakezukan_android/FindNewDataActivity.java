@@ -1,12 +1,18 @@
 package com.example.iwakiri.sakezukan_android;
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class FindNewDataActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private long sakeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,12 +25,33 @@ public class FindNewDataActivity extends AppCompatActivity implements View.OnCli
         Button findButton = (Button) findViewById(R.id.button35);
         Button helpButton = (Button) findViewById(R.id.button36);
         Button goTasteButton = (Button) findViewById(R.id.button28);
+        TextView textView = (TextView) findViewById(R.id.textView);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
         goTasteButton.setOnClickListener(this);
+
+        Intent intent = getIntent();
+        sakeId = intent.getLongExtra(FindActivity.EXTRA_ID, 0L);
+        Uri uri = ContentUris.withAppendedId(
+                UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                sakeId
+        );
+        String[] projection = {
+                UnifiedDataColumns.DataColumns._ID,
+                UnifiedDataColumns.DataColumns.COLUMN_BRAND
+        };
+        Cursor cursor = getContentResolver().query(
+                uri,
+                projection,
+                UnifiedDataColumns.DataColumns._ID + "=?",
+                new String[]{Long.toString(sakeId)},
+                null
+        );
+        cursor.moveToFirst();
+        textView.setText(cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND)));
     }
 
     @Override
