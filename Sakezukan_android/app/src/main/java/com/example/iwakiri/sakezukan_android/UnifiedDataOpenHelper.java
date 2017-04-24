@@ -44,12 +44,13 @@ public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
     public static final String INIT_TABLE_SAKE =
             "insert into sake (brand,brewery_name,brewery_address,lower_alcohol_content,upper_alcohol_content,category,has_found,has_tasted,user_records_id) values" +
                     "('あいうえお:初発見初飲酒','田中酒造','東京','12.3','13.4','純米大吟醸','0','0',null)," +
-                    "('かきくけこ:発見済初飲酒','佐藤酒造','大阪','14.5','15.6','純米酒','1','0',null)," +
-                    "('さしすせそ:発見済飲酒済','山本酒造','北海道','10.1','11.2','大吟醸','1','1','1')," +
-                    "('たちつてと:発見済飲酒済','高橋酒造','沖縄','9.8','10.9','大吟醸','1','1','2')";
+                    "('かきくけこ:発見済初飲酒','佐藤酒造','大阪','14.5','15.6','純米酒','1','0',1)," +
+                    "('さしすせそ:発見済飲酒済','山本酒造','北海道','10.1','11.2','大吟醸','1','1','2')," +
+                    "('たちつてと:発見済飲酒済','高橋酒造','沖縄','9.8','10.9','大吟醸','1','1','3')";
 
     public static final String INIT_TABLE_USER_RECORDS =
             "insert into user_records (date_found,date_tasted,total_grade,flavor_grade,taste_grade,review) values" +
+                    "('2017-03-22',null,null,null,null,null)," +
                     "('2016-08-26','2016-10-12','3','2','3','さしすせその試飲記録')," +
                     "('2014-03-21','2016-04-17','4','3','4','たちつてとの試飲記録')";
 

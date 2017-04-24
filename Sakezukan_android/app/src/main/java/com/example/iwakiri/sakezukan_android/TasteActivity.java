@@ -22,6 +22,7 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
     public static final String EXTRA_USER_RECORDS_ID = "EXTRA_USER_RECORDS_ID";
     public static final String EXTRA_NO_DATA = "EXTRA_NO_DATA";
 
+    private long sakeId;
     private String[] projection = {
             UnifiedDataColumns.DataColumns._ID,
             UnifiedDataColumns.DataColumns.COLUMN_BRAND,
@@ -121,22 +122,23 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
                         hasTasted = true;
                         break;
                 }
+                sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, TasteTastedDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, TasteNewDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                         startActivity(intent);
                     }
                 } else {
                     //初発見初飲酒
                     Intent intent = new Intent(this, TasteNewDataActivity.class);
-                    intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                    intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                     startActivity(intent);
                 }
             } else {

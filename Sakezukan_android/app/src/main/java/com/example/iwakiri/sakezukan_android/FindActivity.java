@@ -125,12 +125,12 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(EXTRA_ID, cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                        intent.putExtra(EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(EXTRA_ID, cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                        intent.putExtra(EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
                         startActivity(intent);
                     }
                 } else {
@@ -142,7 +142,7 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 //非該当
                 Intent intent = new Intent(this, FindNoDataActivity.class);
-                intent.putExtra(EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                intent.putExtra(TasteActivity.EXTRA_NO_DATA, str);
                 startActivity(intent);
             }
         } else {

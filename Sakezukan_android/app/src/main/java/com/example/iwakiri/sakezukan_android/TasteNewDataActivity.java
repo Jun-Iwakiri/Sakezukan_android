@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,8 +21,10 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
     public static final String LAST_INSERT_ROWID = "ROWID = last_insert_rowid()";
 
     private long sakeId;
+    private long userRecordId;
     Boolean hasFound;
     Boolean hasTasted;
+    Cursor cursor;
 
     EditText totalGradeEdit;
     EditText flavorGradeEdit;
@@ -55,7 +56,6 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
         TextView textView = (TextView) findViewById(R.id.textView15);
         Intent intent = getIntent();
         Boolean isRequestedNewMaster = intent.getBooleanExtra(TasteNoDataActivity.EXTRA_REQUEST, false);
-        String searchedStr = intent.getStringExtra(TasteActivity.EXTRA_NO_DATA);
         if (!isRequestedNewMaster) {
             sakeId = intent.getLongExtra(FindActivity.EXTRA_ID, 0L);
             Uri uri = ContentUris.withAppendedId(
@@ -66,9 +66,10 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
                     UnifiedDataColumns.DataColumns._ID,
                     UnifiedDataColumns.DataColumns.COLUMN_BRAND,
                     UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND,
-                    UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED
+                    UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED,
+                    UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID
             };
-            Cursor cursor = getContentResolver().query(
+            cursor = getContentResolver().query(
                     uri,
                     projection,
                     UnifiedDataColumns.DataColumns._ID + "=?",
@@ -98,17 +99,18 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
                     break;
             }
 
+            String foundStr = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
             if (hasFound) {
                 if (hasTasted) {
-                    textView.setText(cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND)) + "の試飲記録を追加登録");
+                    textView.setText(foundStr + "の試飲記録を追加登録");
                 } else {
-                    textView.setText(cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND)) + "の以前発見した情報の表示");
+                    textView.setText(foundStr + "の以前発見した情報の表示");
                 }
             } else {
-                textView.setText(cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND)) + "の発見情報の表示");
+                textView.setText(foundStr + "の発見情報の表示");
             }
         } else {
-            textView.setText(searchedStr + "を新規登録申請して登録");
+            textView.setText("新規登録申請して登録");
         }
 
     }
@@ -146,51 +148,71 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
                 Integer flavorGrade = Integer.parseInt(flavorGradeEdit.getText().toString().trim());
                 Integer tasteGrade = Integer.parseInt(tasteGradeEdit.getText().toString().trim());
                 String review = reviewEdit.getText().toString().trim();
-                //条件処理必要
-                String foundDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-                String tastedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
 
                 ContentValues userRecordsValues = new ContentValues();
-                userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND, foundDate);
+                String tastedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
                 userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED, tastedDate);
                 userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE, totalGrade);
                 userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE, flavorGrade);
                 userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE, tasteGrade);
                 userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_REVIEW, review);
-
-                getContentResolver().insert(
-                        UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
-                );
-
-                String[] projection = {
-                        UnifiedDataColumns.DataColumns._ID,
-                        UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND,
-                        UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED,
-                        UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
-                        UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
-                        UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
-                        UnifiedDataColumns.DataColumns.COLUMN_REVIEW
-                };
-                String selection = LAST_INSERT_ROWID;
-                Cursor cursor = getContentResolver().query(
-                        UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
-                        projection,
-                        selection,
-                        null,
-                        null
-                );
-                cursor.moveToFirst();
-
-                //日本酒テーブルに試飲記録を紐付ける処理
-                long userRecordId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
-                //条件分岐必要
-                int hasFound = 1;
-                int hasTasted = 1;
-                Log.v("userRecordId", Long.toString(userRecordId));
+                //条件処理必要
+                int setTrueInt = 1;
                 ContentValues sakeValues = new ContentValues();
-                sakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID, userRecordId);
-                sakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND, hasFound);
-                sakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED, hasTasted);
+                if (!hasFound) {
+                    //ユーザ情報挿入
+                    String foundDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND, foundDate);
+
+                    getContentResolver().insert(
+                            UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
+                    );
+
+
+                    String[] projection = {
+                            UnifiedDataColumns.DataColumns._ID,
+                            UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND,
+                            UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED,
+                            UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
+                            UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
+                            UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
+                            UnifiedDataColumns.DataColumns.COLUMN_REVIEW
+                    };
+                    String selection = LAST_INSERT_ROWID;
+                    Cursor insertedCursor = getContentResolver().query(
+                            UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
+                            projection,
+                            selection,
+                            null,
+                            null
+                    );
+                    insertedCursor.moveToFirst();
+
+                    userRecordId = insertedCursor.getLong(insertedCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                    int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
+
+                    sakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID, userRecordId);
+                    if (hasFoundInt != setTrueInt) {
+                        hasFoundInt = setTrueInt;
+                        sakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND, hasFoundInt);
+                    }
+                } else {
+                    //ユーザ情報更新
+                    userRecordId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID));
+                    Uri uri = ContentUris.withAppendedId(
+                            UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
+                            userRecordId
+                    );
+                    getContentResolver().update(
+                            uri,
+                            userRecordsValues,
+                            UnifiedDataColumns.DataColumns._ID + "=?",
+                            new String[]{Long.toString(userRecordId)}
+                    );
+                }
+
+                int hasTastedInt = setTrueInt;
+                sakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED, hasTastedInt);
 
                 Uri uri = ContentUris.withAppendedId(
                         UnifiedDataContentProvider.CONTENT_URI_SAKE,
@@ -204,7 +226,7 @@ public class TasteNewDataActivity extends AppCompatActivity implements View.OnCl
                 );
 
                 Intent registrationIntent = new Intent(getApplicationContext(), TasteRegisteredDataActivity.class);
-                registrationIntent.putExtra(TasteActivity.EXTRA_USER_RECORDS_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                registrationIntent.putExtra(TasteActivity.EXTRA_USER_RECORDS_ID, userRecordId);
                 startActivity(registrationIntent);
                 finish();
                 break;

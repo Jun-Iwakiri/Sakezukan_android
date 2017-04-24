@@ -92,12 +92,6 @@ public class GuideDetailActivity extends AppCompatActivity implements View.OnCli
                 goTasteButton.setVisibility(View.GONE);
             }
         }
-//        Boolean hasTasted = intent.getBooleanExtra("tasted", false);
-//        if (hasTasted) {
-//            goTasteButton.setVisibility(View.GONE);
-//            textView.setText("詳細情報解放時");
-//    }
-
     }
 
     @Override
@@ -114,7 +108,6 @@ public class GuideDetailActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.button80:
-            case R.id.button83:
                 Intent tasteIntent = new Intent(getApplicationContext(), TasteActivity.class);
                 startActivity(tasteIntent);
                 finish();
@@ -128,6 +121,11 @@ public class GuideDetailActivity extends AppCompatActivity implements View.OnCli
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
                 finish();
+                break;
+            case R.id.button83:
+                Intent goTasteIntent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                goTasteIntent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                startActivity(goTasteIntent);
                 break;
         }
     }

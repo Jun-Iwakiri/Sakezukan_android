@@ -7,14 +7,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class FindNoDataActivity extends AppCompatActivity implements View.OnClickListener {
 
     Boolean hasFound;
     Boolean hasTasted;
-    EditText editText;
     String str;
+    String displayNoDataBrand;
+    String searchedStr;
+    EditText editText;
 
     private String[] projection = {
             UnifiedDataColumns.DataColumns._ID,
@@ -37,6 +40,7 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
         Button findButton = (Button) findViewById(R.id.button45);
         Button helpButton = (Button) findViewById(R.id.button46);
         Button searchButton = (Button) findViewById(R.id.button31);
+        TextView textView3 = (TextView) findViewById(R.id.textView3);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
@@ -45,6 +49,11 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
         searchButton.setOnClickListener(this);
 
         editText = (EditText) findViewById(R.id.edittext3);
+
+        Intent intent = getIntent();
+        searchedStr = intent.getStringExtra(TasteActivity.EXTRA_NO_DATA);
+        displayNoDataBrand = getString(R.string.no_data_text, searchedStr);
+        textView3.setText(displayNoDataBrand);
     }
 
     @Override
@@ -120,12 +129,12 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
                         startActivity(intent);
                     }
                 } else {
@@ -137,7 +146,7 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
             } else {
                 //非該当
                 Intent intent = new Intent(this, FindNoDataActivity.class);
-                intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                intent.putExtra(TasteActivity.EXTRA_NO_DATA, str);
                 startActivity(intent);
             }
         } else {

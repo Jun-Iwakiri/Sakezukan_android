@@ -94,7 +94,6 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
             case R.id.button73:
                 //新規登録申請して登録
                 Intent intent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
-                intent.putExtra(TasteActivity.EXTRA_NO_DATA, searchedStr);
                 boolean isRequestedNewMaster = true;
                 intent.putExtra(EXTRA_REQUEST, isRequestedNewMaster);
                 startActivity(intent);

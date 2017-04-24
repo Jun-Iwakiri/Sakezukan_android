@@ -1,6 +1,7 @@
 package com.example.iwakiri.sakezukan_android;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -9,6 +10,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class FindNewDataActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,7 +56,49 @@ public class FindNewDataActivity extends AppCompatActivity implements View.OnCli
                 null
         );
         cursor.moveToFirst();
-        textView.setText(cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND)));
+
+        ContentValues userRecordsValues = new ContentValues();
+        String foundDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND, foundDate);
+        getContentResolver().insert(
+                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
+        );
+
+        String[] insertedProjection = {
+                UnifiedDataColumns.DataColumns._ID,
+                UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND
+        };
+        String selection = TasteNewDataActivity.LAST_INSERT_ROWID;
+        Cursor insertedCursor = getContentResolver().query(
+                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
+                insertedProjection,
+                selection,
+                null,
+                null
+        );
+        insertedCursor.moveToFirst();
+
+        long userRecordId = insertedCursor.getLong(insertedCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+        int setTrueInt = 1;
+        Integer hasFoundInt = setTrueInt;
+
+        ContentValues values = new ContentValues();
+        values.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID, userRecordId);
+        values.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND, hasFoundInt);
+        Uri updatedUri = ContentUris.withAppendedId(
+                UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                sakeId
+        );
+        getContentResolver().update(
+                updatedUri,
+                values,
+                UnifiedDataColumns.DataColumns._ID + "=?",
+                new String[]{Long.toString(sakeId)}
+        );
+
+
+        String searchedStr = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
+        textView.setText(searchedStr + "を見つけました");
     }
 
     @Override
@@ -84,7 +131,7 @@ public class FindNewDataActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.button28:
                 Intent goTasteNewDataIntent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
-                goTasteNewDataIntent.putExtra("message", 2);
+                goTasteNewDataIntent.putExtra(FindActivity.EXTRA_ID, sakeId);
                 startActivity(goTasteNewDataIntent);
                 break;
         }

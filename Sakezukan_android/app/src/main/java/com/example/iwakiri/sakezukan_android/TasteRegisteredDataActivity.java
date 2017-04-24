@@ -19,7 +19,6 @@ public class TasteRegisteredDataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_taste_registered_data);
 
-        TextView textView16 = (TextView) findViewById(R.id.textView16);
         TextView textView37 = (TextView) findViewById(R.id.textView37);
         TextView textView38 = (TextView) findViewById(R.id.textView38);
         TextView textView39 = (TextView) findViewById(R.id.textView39);

@@ -68,7 +68,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:text="TASTE画面へ"
+        android:text="飲んだので試飲記録へ"
         android:textSize="40dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintHorizontal_bias="0.0"

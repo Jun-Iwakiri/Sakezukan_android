@@ -111,12 +111,21 @@ public class UnifiedDataContentProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        if (uriMatcher.match(uri) != SAKE_ITEM) {
-            throw new IllegalArgumentException("invalid URI:" + uri);
+        int updatedCount;
+        String tableName;
+        switch (uriMatcher.match(uri)) {
+            case SAKE_ITEM:
+                tableName = UnifiedDataColumns.DataColumns.TABLE_SAKE;
+                break;
+            case USER_RECORDS_ITEM:
+                tableName = UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS;
+                break;
+            default:
+                throw new IllegalArgumentException("invalid URI:" + uri);
         }
         SQLiteDatabase db = unifiedDataOpenHelper.getWritableDatabase();
-        int updatedCount = db.update(
-                UnifiedDataColumns.DataColumns.TABLE_SAKE,
+        updatedCount = db.update(
+                tableName,
                 values,
                 selection,
                 selectionArgs
