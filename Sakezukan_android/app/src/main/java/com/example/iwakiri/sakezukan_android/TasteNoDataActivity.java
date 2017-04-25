@@ -20,7 +20,9 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
     EditText editText;
 
     public static final String EXTRA_REQUEST = "EXTRA_REQUEST";
+    public static final String EXTRA_HAS_TASTED = "EXTRA_HAS_TASTED";
 
+    private long sakeId;
     private String[] projection = {
             UnifiedDataColumns.DataColumns._ID,
             UnifiedDataColumns.DataColumns.COLUMN_BRAND,
@@ -93,9 +95,11 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.button73:
                 //新規登録申請して登録
-                Intent intent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                Intent intent = new Intent(getApplicationContext(), TasteRegistrationActivity.class);
                 boolean isRequestedNewMaster = true;
+                boolean hasTasted = true;
                 intent.putExtra(EXTRA_REQUEST, isRequestedNewMaster);
+                intent.putExtra(EXTRA_HAS_TASTED, hasTasted);
                 startActivity(intent);
                 finish();
                 break;
@@ -103,10 +107,10 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void searchData() {
-        //FindActivityに重複表現有り
         str = editText.getText().toString().trim();
         if (!str.isEmpty()) {
-            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+            //マスターデータから完全一致検索
+            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
             cursor = getContentResolver().query(
                     UnifiedDataContentProvider.CONTENT_URI_SAKE,
                     projection,
@@ -115,11 +119,48 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
                     null
             );
             cursor.moveToFirst();
+            //マスターデータから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから完全一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
 
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
                 int hasTastedInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
 
+                //integerで格納された値をbooleanに変換
                 switch (hasFoundInt) {
                     case 0:
                         hasFound = false;
@@ -136,22 +177,23 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
                         hasTasted = true;
                         break;
                 }
+                sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, TasteTastedDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
-                        Intent intent = new Intent(this, TasteNewDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        Intent intent = new Intent(this, TasteRegistrationActivity.class);
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                         startActivity(intent);
                     }
                 } else {
-                    //初発見初飲酒
-                    Intent intent = new Intent(this, TasteNewDataActivity.class);
-                    intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                    //初発見
+                    Intent intent = new Intent(this, TasteRegistrationActivity.class);
+                    intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                     startActivity(intent);
                 }
             } else {

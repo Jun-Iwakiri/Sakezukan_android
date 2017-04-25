@@ -15,14 +15,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class FindNewDataActivity extends AppCompatActivity implements View.OnClickListener {
+public class FindRegistrationActivity extends AppCompatActivity implements View.OnClickListener {
 
     private long sakeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_find_new_data);
+        setContentView(R.layout.activity_find_registration);
 
         Button homeButton = (Button) findViewById(R.id.button32);
         Button guideButton = (Button) findViewById(R.id.button33);
@@ -68,7 +68,7 @@ public class FindNewDataActivity extends AppCompatActivity implements View.OnCli
                 UnifiedDataColumns.DataColumns._ID,
                 UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND
         };
-        String selection = TasteNewDataActivity.LAST_INSERT_ROWID;
+        String selection = TasteRegistrationActivity.LAST_INSERT_ROWID;
         Cursor insertedCursor = getContentResolver().query(
                 UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
                 insertedProjection,
@@ -130,7 +130,7 @@ public class FindNewDataActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.button28:
-                Intent goTasteNewDataIntent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                Intent goTasteNewDataIntent = new Intent(getApplicationContext(), TasteRegistrationActivity.class);
                 goTasteNewDataIntent.putExtra(FindActivity.EXTRA_ID, sakeId);
                 startActivity(goTasteNewDataIntent);
                 break;

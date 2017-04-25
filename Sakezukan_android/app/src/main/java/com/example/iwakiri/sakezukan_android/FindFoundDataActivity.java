@@ -153,7 +153,7 @@ public class FindFoundDataActivity extends AppCompatActivity implements View.OnC
                 searchData();
                 break;
             case R.id.button30:
-                Intent intent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                Intent intent = new Intent(getApplicationContext(), TasteRegistrationActivity.class);
                 intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
                 startActivity(intent);
                 break;
@@ -163,7 +163,8 @@ public class FindFoundDataActivity extends AppCompatActivity implements View.OnC
     private void searchData() {
         str = editText.getText().toString().trim();
         if (!str.isEmpty()) {
-            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+            //マスターデータから完全一致検索
+            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
             cursor = getContentResolver().query(
                     UnifiedDataContentProvider.CONTENT_URI_SAKE,
                     projection,
@@ -172,6 +173,42 @@ public class FindFoundDataActivity extends AppCompatActivity implements View.OnC
                     null
             );
             cursor.moveToFirst();
+            //マスターデータから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから完全一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
 
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
@@ -209,7 +246,7 @@ public class FindFoundDataActivity extends AppCompatActivity implements View.OnC
                     }
                 } else {
                     //初発見
-                    Intent intent = new Intent(this, FindNewDataActivity.class);
+                    Intent intent = new Intent(this, FindRegistrationActivity.class);
                     intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
                     startActivity(intent);
                 }

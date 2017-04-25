@@ -21,6 +21,7 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
     EditText editText;
     String str;
 
+    private long sakeId;
     private String[] projection = {
             UnifiedDataColumns.DataColumns._ID,
             UnifiedDataColumns.DataColumns.COLUMN_BRAND,
@@ -89,7 +90,8 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
     private void searchData() {
         str = editText.getText().toString().trim();
         if (!str.isEmpty()) {
-            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+            //マスターデータから完全一致検索
+            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
             cursor = getContentResolver().query(
                     UnifiedDataContentProvider.CONTENT_URI_SAKE,
                     projection,
@@ -98,6 +100,42 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                     null
             );
             cursor.moveToFirst();
+            //マスターデータから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから完全一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
 
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
@@ -121,22 +159,23 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                         break;
                 }
 
+                sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(EXTRA_ID, sakeId);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(EXTRA_ID, sakeId);
                         startActivity(intent);
                     }
                 } else {
                     //初発見
-                    Intent intent = new Intent(this, FindNewDataActivity.class);
-                    intent.putExtra(EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                    Intent intent = new Intent(this, FindRegistrationActivity.class);
+                    intent.putExtra(EXTRA_ID, sakeId);
                     startActivity(intent);
                 }
             } else {

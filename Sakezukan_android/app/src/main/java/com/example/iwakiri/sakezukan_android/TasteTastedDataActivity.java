@@ -133,7 +133,7 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
                 break;
             case R.id.button75:
                 //試飲記録追加登録
-                Intent intent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                Intent intent = new Intent(getApplicationContext(), TasteRegistrationActivity.class);
                 intent.putExtra(FindActivity.EXTRA_ID, cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 startActivity(intent);
                 break;
@@ -141,10 +141,10 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
     }
 
     private void searchData() {
-        //FindActivityに重複表現有り
         str = editText.getText().toString().trim();
         if (!str.isEmpty()) {
-            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+            //マスターデータから完全一致検索
+            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
             cursor = getContentResolver().query(
                     UnifiedDataContentProvider.CONTENT_URI_SAKE,
                     projection,
@@ -153,11 +153,48 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
                     null
             );
             cursor.moveToFirst();
+            //マスターデータから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから完全一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
 
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
                 int hasTastedInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
 
+                //integerで格納された値をbooleanに変換
                 switch (hasFoundInt) {
                     case 0:
                         hasFound = false;
@@ -174,22 +211,23 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
                         hasTasted = true;
                         break;
                 }
+                sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, TasteTastedDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
-                        Intent intent = new Intent(this, TasteNewDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        Intent intent = new Intent(this, TasteRegistrationActivity.class);
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                         startActivity(intent);
                     }
                 } else {
-                    //初発見初飲酒
-                    Intent intent = new Intent(this, TasteNewDataActivity.class);
-                    intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                    //初発見
+                    Intent intent = new Intent(this, TasteRegistrationActivity.class);
+                    intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                     startActivity(intent);
                 }
             } else {

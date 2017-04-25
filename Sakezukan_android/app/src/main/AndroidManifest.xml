@@ -17,14 +17,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".FindActivity" />
-        <activity android:name=".FindNewDataActivity" />
+        <activity android:name=".FindRegistrationActivity" />
         <activity android:name=".FindFoundDataActivity" />
         <activity android:name=".FindNoDataActivity" />
         <activity android:name=".GuideActivity" />
         <activity android:name=".TasteActivity" />
         <activity android:name=".HelpActivity" />
         <activity android:name=".HomeUserInfoActivity" />
-        <activity android:name=".TasteNewDataActivity" />
+        <activity android:name=".TasteRegistrationActivity" />
         <activity android:name=".TasteTastedDataActivity" />
         <activity android:name=".TasteNoDataActivity" />
         <activity android:name=".TasteRegisteredDataActivity" />
@@ -34,7 +34,8 @@
             android:name=".UnifiedDataContentProvider"
             android:authorities="com.example.iwakiri.sakezukan_android.UnifiedDataContentProvider"
             android:enabled="true"
-            android:exported="false"></provider>
+            android:exported="false" />
+
     </application>
 
 </manifest>

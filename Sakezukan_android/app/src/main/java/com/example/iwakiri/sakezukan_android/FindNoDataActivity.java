@@ -40,6 +40,7 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
         Button findButton = (Button) findViewById(R.id.button45);
         Button helpButton = (Button) findViewById(R.id.button46);
         Button searchButton = (Button) findViewById(R.id.button31);
+        Button goRegistrationButton = (Button) findViewById(R.id.button7);
         TextView textView3 = (TextView) findViewById(R.id.textView3);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
@@ -47,6 +48,7 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
         searchButton.setOnClickListener(this);
+        goRegistrationButton.setOnClickListener(this);
 
         editText = (EditText) findViewById(R.id.edittext3);
 
@@ -87,13 +89,23 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
             case R.id.button31:
                 searchData();
                 break;
+            case R.id.button7:
+                Intent goRegistrationIntent = new Intent(getApplicationContext(), TasteRegistrationActivity.class);
+                boolean isRequestedMaster = true;
+                boolean hasTasted = false;
+                goRegistrationIntent.putExtra(TasteNoDataActivity.EXTRA_REQUEST, isRequestedMaster);
+                goRegistrationIntent.putExtra(TasteNoDataActivity.EXTRA_HAS_TASTED, hasTasted);
+                startActivity(goRegistrationIntent);
+                finish();
+                break;
         }
     }
 
     private void searchData() {
         str = editText.getText().toString().trim();
         if (!str.isEmpty()) {
-            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+            //マスターデータから完全一致検索
+            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
             cursor = getContentResolver().query(
                     UnifiedDataContentProvider.CONTENT_URI_SAKE,
                     projection,
@@ -102,6 +114,42 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
                     null
             );
             cursor.moveToFirst();
+            //マスターデータから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから完全一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
 
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
@@ -139,7 +187,7 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
                     }
                 } else {
                     //初発見
-                    Intent intent = new Intent(this, FindNewDataActivity.class);
+                    Intent intent = new Intent(this, FindRegistrationActivity.class);
                     intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
                     startActivity(intent);
                 }

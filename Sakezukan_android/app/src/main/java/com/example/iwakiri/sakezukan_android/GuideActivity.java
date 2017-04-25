@@ -43,16 +43,12 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
         Button tasteButton = (Button) findViewById(R.id.button85);
         Button findButton = (Button) findViewById(R.id.button84);
         Button helpButton = (Button) findViewById(R.id.button83);
-//        Button noTastedButton = (Button) findViewById(R.id.button76);
-//        Button tastedButton = (Button) findViewById(R.id.button77);
         ListView sakeList = (ListView) findViewById(R.id.sake_listview);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
-//        noTastedButton.setOnClickListener(this);
-//        tastedButton.setOnClickListener(this);
 
         Cursor cursor = getContentResolver().query(UnifiedDataContentProvider.CONTENT_URI_SAKE, projection, selection, selectionArgs, null);
         String[] from = {UnifiedDataColumns.DataColumns._ID,
@@ -118,16 +114,6 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(helpIntent);
                 finish();
                 break;
-//            case R.id.button76:
-//                Intent notTastedIntent = new Intent(getApplicationContext(), GuideDetailActivity.class);
-//                notTastedIntent.putExtra("tasted", false);
-//                startActivity(notTastedIntent);
-//                break;
-//            case R.id.button77:
-//                Intent tastedIntent = new Intent(getApplicationContext(), GuideDetailActivity.class);
-//                tastedIntent.putExtra("tasted", true);
-//                startActivity(tastedIntent);
-//                break;
         }
     }
 

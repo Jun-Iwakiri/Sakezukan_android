@@ -89,10 +89,10 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void searchData() {
-        //FindActivityに重複表現有り
         str = editText.getText().toString().trim();
         if (!str.isEmpty()) {
-            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+            //マスターデータから完全一致検索
+            selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
             cursor = getContentResolver().query(
                     UnifiedDataContentProvider.CONTENT_URI_SAKE,
                     projection,
@@ -101,11 +101,48 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
                     null
             );
             cursor.moveToFirst();
+            //マスターデータから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから完全一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " = '" + str + "'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
+            //ユーザ作成データから部分一致検索
+            if (cursor == null || cursor.getCount() == 0) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_BRAND + " LIKE '%" + str + "%'";
+                cursor = getContentResolver().query(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+            }
 
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
                 int hasTastedInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
 
+                //integerで格納された値をbooleanに変換
                 switch (hasFoundInt) {
                     case 0:
                         hasFound = false;
@@ -131,13 +168,13 @@ public class TasteActivity extends AppCompatActivity implements View.OnClickList
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
-                        Intent intent = new Intent(this, TasteNewDataActivity.class);
+                        Intent intent = new Intent(this, TasteRegistrationActivity.class);
                         intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                         startActivity(intent);
                     }
                 } else {
-                    //初発見初飲酒
-                    Intent intent = new Intent(this, TasteNewDataActivity.class);
+                    //初発見
+                    Intent intent = new Intent(this, TasteRegistrationActivity.class);
                     intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                     startActivity(intent);
                 }

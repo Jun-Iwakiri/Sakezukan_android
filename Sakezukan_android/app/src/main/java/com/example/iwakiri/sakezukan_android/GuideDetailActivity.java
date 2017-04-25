@@ -123,7 +123,7 @@ public class GuideDetailActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.button83:
-                Intent goTasteIntent = new Intent(getApplicationContext(), TasteNewDataActivity.class);
+                Intent goTasteIntent = new Intent(getApplicationContext(), TasteRegistrationActivity.class);
                 goTasteIntent.putExtra(FindActivity.EXTRA_ID, sakeId);
                 startActivity(goTasteIntent);
                 break;

@@ -13,6 +13,7 @@ public class UnifiedDataColumns {
     public static abstract class DataColumns implements BaseColumns {
         public static final String TABLE_USER_DATA = "user_data";
         public static final String TABLE_SAKE = "sake";
+        public static final String TABLE_USER_SAKE = "user_sake";
         public static final String TABLE_USER_RECORDS = "user_records";
         public static final String TABLE_INFORMATIONS = "informations";
         public static final String TABLE_HELP = "help";
@@ -27,6 +28,7 @@ public class UnifiedDataColumns {
         public static final String COLUMN_HAS_FOUND = "has_found";
         public static final String COLUMN_HAS_TASTED = "has_tasted";
         public static final String COLUMN_USER_RECORDS_ID = "user_records_id";
+        public static final String COLUMN_MASTER_SAKE_ID = "master_sake_id";
         public static final String COLUMN_DATE_FOUND = "date_found";
         public static final String COLUMN_DATE_TASTED = "date_tasted";
         public static final String COLUMN_TOTAL_GRADE = "total_grade";
