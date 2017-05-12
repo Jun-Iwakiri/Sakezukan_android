@@ -57,13 +57,21 @@ public class FindRegistrationActivity extends AppCompatActivity implements View.
         );
         cursor.moveToFirst();
 
+        String searchedBrand = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
+        textView.setText(searchedBrand + "を見つけました");
+
+        //ユーザ記録テーブルにレコード挿入、発見日と日本酒IDを格納
         ContentValues userRecordsValues = new ContentValues();
         String foundDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
         userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND, foundDate);
+        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID, sakeId);
+        long userRecordId = 0;
+        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID, userRecordId);
         getContentResolver().insert(
                 UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
         );
 
+        //挿入したユーザ記録取得
         String[] insertedProjection = {
                 UnifiedDataColumns.DataColumns._ID,
                 UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND
@@ -78,12 +86,10 @@ public class FindRegistrationActivity extends AppCompatActivity implements View.
         );
         insertedCursor.moveToFirst();
 
-        long userRecordId = insertedCursor.getLong(insertedCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+        //日本酒データ更新
         int setTrueInt = 1;
         Integer hasFoundInt = setTrueInt;
-
         ContentValues values = new ContentValues();
-        values.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID, userRecordId);
         values.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND, hasFoundInt);
         Uri updatedUri = ContentUris.withAppendedId(
                 UnifiedDataContentProvider.CONTENT_URI_SAKE,
@@ -95,10 +101,6 @@ public class FindRegistrationActivity extends AppCompatActivity implements View.
                 UnifiedDataColumns.DataColumns._ID + "=?",
                 new String[]{Long.toString(sakeId)}
         );
-
-
-        String searchedStr = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
-        textView.setText(searchedStr + "を見つけました");
     }
 
     @Override

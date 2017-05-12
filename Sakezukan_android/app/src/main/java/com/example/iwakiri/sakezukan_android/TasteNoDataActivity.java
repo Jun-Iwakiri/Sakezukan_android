@@ -14,6 +14,7 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
 
     Boolean hasFound;
     Boolean hasTasted;
+    Boolean isUserSake;
     String str;
     String displayNoDataBrand;
     String searchedStr;
@@ -27,7 +28,8 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
             UnifiedDataColumns.DataColumns._ID,
             UnifiedDataColumns.DataColumns.COLUMN_BRAND,
             UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND,
-            UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED
+            UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED,
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID
     };
     private String selection = null;
     private String[] selectionArgs = null;
@@ -159,6 +161,7 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
                 int hasTastedInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
+                int masterSakeId = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
 
                 //integerで格納された値をbooleanに変換
                 switch (hasFoundInt) {
@@ -177,17 +180,25 @@ public class TasteNoDataActivity extends AppCompatActivity implements View.OnCli
                         hasTasted = true;
                         break;
                 }
+                if (masterSakeId > 0) {
+                    isUserSake = false;
+                } else {
+                    isUserSake = true;
+                }
+
                 sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, TasteTastedDataActivity.class);
                         intent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                        intent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, TasteRegistrationActivity.class);
                         intent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                        intent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     }
                 } else {

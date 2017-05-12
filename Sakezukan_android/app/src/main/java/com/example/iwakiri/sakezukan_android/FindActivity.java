@@ -7,6 +7,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,9 +16,11 @@ import android.widget.Toast;
 public class FindActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_ID = "EXTRA_ID";
+    public static final String EXTRA_IS_USER_SAKE = "EXTRA_IS_USER_SAKE";
 
     Boolean hasFound;
     Boolean hasTasted;
+    Boolean isUserSake;
     EditText editText;
     String str;
 
@@ -26,7 +29,8 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
             UnifiedDataColumns.DataColumns._ID,
             UnifiedDataColumns.DataColumns.COLUMN_BRAND,
             UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND,
-            UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED
+            UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED,
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID
     };
     private String selection = null;
     private String[] selectionArgs = null;
@@ -140,6 +144,7 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
                 int hasTastedInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
+                int masterSakeId = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
 
                 //integerで格納された値をbooleanに変換
                 switch (hasFoundInt) {
@@ -158,6 +163,11 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                         hasTasted = true;
                         break;
                 }
+                if (masterSakeId > 0) {
+                    isUserSake = false;
+                } else {
+                    isUserSake = true;
+                }
 
                 sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
@@ -165,11 +175,13 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
                         //発見済試飲済
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
                         intent.putExtra(EXTRA_ID, sakeId);
+                        intent.putExtra(EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
                         intent.putExtra(EXTRA_ID, sakeId);
+                        intent.putExtra(EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     }
                 } else {

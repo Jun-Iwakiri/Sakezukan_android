@@ -16,17 +16,17 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
 
     Boolean hasFound;
     Boolean hasTasted;
+    Boolean isUserSake;
     EditText editText;
     String str;
     private long sakeId;
-    private long userRecordsId;
 
     private String[] projection = {
             UnifiedDataColumns.DataColumns._ID,
             UnifiedDataColumns.DataColumns.COLUMN_BRAND,
             UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND,
             UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED,
-            UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID
     };
     private String selection = null;
     private String[] selectionArgs = null;
@@ -58,10 +58,22 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
 
         Intent intent = getIntent();
         sakeId = intent.getLongExtra(FindActivity.EXTRA_ID, 0L);
-        Uri uri = ContentUris.withAppendedId(
-                UnifiedDataContentProvider.CONTENT_URI_SAKE,
-                sakeId
-        );
+        isUserSake = intent.getBooleanExtra(FindActivity.EXTRA_IS_USER_SAKE, false);
+        Uri uri;
+        String selectionColumn;
+        if (isUserSake) {
+            uri = ContentUris.withAppendedId(
+                    UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                    sakeId
+            );
+            selectionColumn = UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID;
+        } else {
+            uri = ContentUris.withAppendedId(
+                    UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                    sakeId
+            );
+            selectionColumn = UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID;
+        }
         cursor = getContentResolver().query(
                 uri,
                 projection,
@@ -73,12 +85,7 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
         String displayTastedBrand = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
         textView18.setText(displayTastedBrand + "は以前飲んだことのある銘柄");
 
-        userRecordsId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_ID));
-
-        Uri userRecordsUri = ContentUris.withAppendedId(
-                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
-                userRecordsId
-        );
+        //該当日本酒データIDを持っているユーザ記録を検索
         String[] projection = {
                 UnifiedDataColumns.DataColumns._ID,
                 UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND,
@@ -88,15 +95,21 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
                 UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
                 UnifiedDataColumns.DataColumns.COLUMN_REVIEW
         };
-        Cursor userRecordsCursor = getContentResolver().query(
+
+        Uri userRecordsUri = ContentUris.withAppendedId(
+                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
+                sakeId
+        );
+
+        Cursor userRecordCursor = getContentResolver().query(
                 userRecordsUri,
                 projection,
-                UnifiedDataColumns.DataColumns._ID + "=?",
-                new String[]{Long.toString(userRecordsId)},
+                selectionColumn + "=?",
+                new String[]{Long.toString(sakeId)},
                 null
         );
-        userRecordsCursor.moveToFirst();
-        String displayDateTasted = userRecordsCursor.getString(userRecordsCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED));
+        userRecordCursor.moveToFirst();
+        String displayDateTasted = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED));
         textView14.setText("前回試飲日:" + displayDateTasted);
     }
 
@@ -134,7 +147,8 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
             case R.id.button75:
                 //試飲記録追加登録
                 Intent intent = new Intent(getApplicationContext(), TasteRegistrationActivity.class);
-                intent.putExtra(FindActivity.EXTRA_ID, cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                intent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                intent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
                 startActivity(intent);
                 break;
         }
@@ -193,6 +207,7 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
                 int hasTastedInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
+                int masterSakeId = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
 
                 //integerで格納された値をbooleanに変換
                 switch (hasFoundInt) {
@@ -211,17 +226,25 @@ public class TasteTastedDataActivity extends AppCompatActivity implements View.O
                         hasTasted = true;
                         break;
                 }
+                if (masterSakeId > 0) {
+                    isUserSake = false;
+                } else {
+                    isUserSake = true;
+                }
+
                 sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, TasteTastedDataActivity.class);
                         intent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                        intent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, TasteRegistrationActivity.class);
                         intent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                        intent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     }
                 } else {

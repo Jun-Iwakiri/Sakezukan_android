@@ -16,7 +16,9 @@ public class UnifiedDataColumns {
         public static final String TABLE_USER_SAKE = "user_sake";
         public static final String TABLE_USER_RECORDS = "user_records";
         public static final String TABLE_INFORMATIONS = "informations";
-        public static final String TABLE_HELP = "help";
+        public static final String TABLE_HELP_CATEGORY = "help_category";
+        public static final String TABLE_HELP_CONTENTS = "help_contents";
+        public static final String COLUMN_USER_NAME = "user_name";
         public static final String COLUMN_LICENSE_NAME = "license_name";
         public static final String COLUMN_LICENSE_NUMBER = "license_number";
         public static final String COLUMN_BRAND = "brand";
@@ -34,8 +36,14 @@ public class UnifiedDataColumns {
         public static final String COLUMN_TOTAL_GRADE = "total_grade";
         public static final String COLUMN_FLAVOR_GRADE = "flavor_grade";
         public static final String COLUMN_TASTE_GRADE = "taste_grade";
+        public static final String COLUMN_USER_RECORDS_IMAGE = "user_records_image";
         public static final String COLUMN_REVIEW = "review";
+        public static final String COLUMN_USER_SAKE_ID = "user_sake_id";
+        public static final String COLUMN_INFORMATION_TITLE = "information_title";
         public static final String COLUMN_INFORMATION_BODY = "information_body";
+        public static final String COLUMN_HELP_CATEGORY = "help_category";
+        public static final String COLUMN_HELP_CATEGORY_ID = "help_category_id";
+        public static final String COLUMN_HELP_TITLE = "help_title";
         public static final String COLUMN_HELP_BODY = "help_body";
     }
 }

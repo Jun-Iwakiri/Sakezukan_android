@@ -23,6 +23,10 @@ public class UnifiedDataContentProvider extends ContentProvider {
             Uri.parse("content://" + AUTHORITY + "/" + UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS);
     public static final Uri CONTENT_URI_INFORMATIONS =
             Uri.parse("content://" + AUTHORITY + "/" + UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS);
+    public static final Uri CONTENT_URI_HELP_CATEGORY =
+            Uri.parse("content://" + AUTHORITY + "/" + UnifiedDataColumns.DataColumns.TABLE_HELP_CATEGORY);
+    public static final Uri CONTENT_URI_HELP_CONTENTS =
+            Uri.parse("content://" + AUTHORITY + "/" + UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENTS);
 
     String tableName;
 
@@ -36,8 +40,10 @@ public class UnifiedDataContentProvider extends ContentProvider {
     private static final int USER_RECORDS_ITEM = 8;
     private static final int INFORMATIONS = 9;
     private static final int INFOMATIONS_ITEM = 10;
-    private static final int HELP = 11;
-    private static final int HELP_ITEM = 12;
+    private static final int HELP_CATEGORY = 11;
+    private static final int HELP_CATEGORY_ITEM = 12;
+    private static final int HELP_CONTENTS = 13;
+    private static final int HELP_CONTENTS_ITEM = 14;
     private static final UriMatcher uriMatcher;
 
     static {
@@ -52,8 +58,10 @@ public class UnifiedDataContentProvider extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS + "/#", USER_RECORDS_ITEM);
         uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS, INFORMATIONS);
         uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS + "/#", INFOMATIONS_ITEM);
-        uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_HELP, HELP);
-        uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_HELP + "/#", HELP_ITEM);
+        uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_HELP_CATEGORY, HELP_CATEGORY);
+        uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_HELP_CATEGORY + "/#", HELP_CATEGORY_ITEM);
+        uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENTS, HELP_CONTENTS);
+        uriMatcher.addURI(AUTHORITY, UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENTS + "/#", HELP_CONTENTS_ITEM);
     }
 
     SQLiteDatabase db;
@@ -65,8 +73,34 @@ public class UnifiedDataContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+//        if (uriMatcher.match(uri) == USER_RECORDS_ITEM || uriMatcher.match(uri) == USER_RECORDS) {
+//            tableName = UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS;
+//        } else if (uriMatcher.match(uri) == USER_DATA_ITEM || uriMatcher.match(uri) == USER_DATA) {
+//            tableName = UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
+//        } else {
+//            throw new IllegalArgumentException("invalid URI:" + uri);
+//        }
+        switch (uriMatcher.match(uri)) {
+            case USER_RECORDS_ITEM:
+            case USER_RECORDS:
+                tableName = UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS;
+                break;
+            case USER_DATA_ITEM:
+            case USER_DATA:
+                tableName = UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
+                break;
+            default:
+                throw new IllegalArgumentException("invalid URI:" + uri);
+        }
+
+        SQLiteDatabase db = unifiedDataOpenHelper.getWritableDatabase();
+        int deletedCount = db.delete(
+                tableName,
+                selection,
+                selectionArgs
+        );
+        getContext().getContentResolver().notifyChange(uri, null);
+        return deletedCount;
     }
 
     @Override
@@ -140,9 +174,13 @@ public class UnifiedDataContentProvider extends ContentProvider {
             case INFOMATIONS_ITEM:
                 tableName = UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS;
                 break;
-            case HELP:
-            case HELP_ITEM:
-                tableName = UnifiedDataColumns.DataColumns.TABLE_HELP;
+            case HELP_CATEGORY:
+            case HELP_CATEGORY_ITEM:
+                tableName = UnifiedDataColumns.DataColumns.TABLE_HELP_CATEGORY;
+                break;
+            case HELP_CONTENTS:
+            case HELP_CONTENTS_ITEM:
+                tableName = UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENTS;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid URI:" + uri);
@@ -166,11 +204,14 @@ public class UnifiedDataContentProvider extends ContentProvider {
                       String[] selectionArgs) {
         int updatedCount;
         switch (uriMatcher.match(uri)) {
-            case USER_DATA:
+            case USER_DATA_ITEM:
                 tableName = UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
                 break;
             case SAKE_ITEM:
                 tableName = UnifiedDataColumns.DataColumns.TABLE_SAKE;
+                break;
+            case USER_SAKE_ITEM:
+                tableName = UnifiedDataColumns.DataColumns.TABLE_USER_SAKE;
                 break;
             case USER_RECORDS_ITEM:
                 tableName = UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS;

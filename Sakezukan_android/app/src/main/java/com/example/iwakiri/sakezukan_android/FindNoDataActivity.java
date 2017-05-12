@@ -14,16 +14,19 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
 
     Boolean hasFound;
     Boolean hasTasted;
+    Boolean isUserSake;
     String str;
     String displayNoDataBrand;
     String searchedStr;
     EditText editText;
 
+    private long sakeId;
     private String[] projection = {
             UnifiedDataColumns.DataColumns._ID,
             UnifiedDataColumns.DataColumns.COLUMN_BRAND,
             UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND,
-            UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED
+            UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED,
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID
     };
     private String selection = null;
     private String[] selectionArgs = null;
@@ -154,6 +157,7 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
             if (cursor != null && cursor.getCount() > 0) {
                 int hasFoundInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
                 int hasTastedInt = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
+                int masterSakeId = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
 
                 //integerで格納された値をbooleanに変換
                 switch (hasFoundInt) {
@@ -172,23 +176,31 @@ public class FindNoDataActivity extends AppCompatActivity implements View.OnClic
                         hasTasted = true;
                         break;
                 }
+                if (masterSakeId > 0) {
+                    isUserSake = false;
+                } else {
+                    isUserSake = true;
+                }
 
+                sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
                 if (hasFound) {
                     if (hasTasted) {
                         //発見済試飲済
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                        intent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     } else {
                         //発見済初飲酒
                         Intent intent = new Intent(this, FindFoundDataActivity.class);
-                        intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                        intent.putExtra(FindActivity.EXTRA_ID, sakeId);
+                        intent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
                         startActivity(intent);
                     }
                 } else {
                     //初発見
                     Intent intent = new Intent(this, FindRegistrationActivity.class);
-                    intent.putExtra(FindActivity.EXTRA_ID, cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID)));
+                    intent.putExtra(FindActivity.EXTRA_ID, sakeId);
                     startActivity(intent);
                 }
             } else {
