@@ -7,6 +7,7 @@
     tools:context="com.example.iwakiri.sakezukan_android.TasteRegistrationActivity">
 
     <LinearLayout
+        android:id="@+id/tasteRegistrationLinearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -16,9 +17,11 @@
         android:orientation="vertical"
         android:weightSum="8"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <TextView
             android:id="@+id/textView15"
@@ -46,7 +49,8 @@
                     android:id="@+id/brand_edit"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="brand" />
+                    android:hint="銘柄"
+                    android:inputType="text" />
             </android.support.design.widget.TextInputLayout>
 
 
@@ -66,21 +70,20 @@
                         android:id="@+id/brewery_name_edit"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="brewery_name" />
+                        android:hint="酒蔵名"
+                        android:inputType="text" />
                 </android.support.design.widget.TextInputLayout>
 
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/brewery_address_input"
+
+                <Spinner
+                    android:id="@+id/brewery_address_spinner"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <EditText
-                        android:id="@+id/brewery_address_edit"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="brewery_address" />
-                </android.support.design.widget.TextInputLayout>
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="1"
+                    android:background="?attr/colorButtonNormal"
+                    android:entries="@array/brewery_address_list" />
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/category_input"
@@ -92,7 +95,8 @@
                         android:id="@+id/category_edit"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="category" />
+                        android:hint="酒分類"
+                        android:inputType="text" />
                 </android.support.design.widget.TextInputLayout>
             </LinearLayout>
 
@@ -117,50 +121,87 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <android.support.design.widget.TextInputLayout
-                        android:id="@+id/total_grade_input"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/total_grade_edit"
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/textView31"
+                            android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:hint="total_grade" />
-                    </android.support.design.widget.TextInputLayout>
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/total_grade_text" />
 
-                    <android.support.design.widget.TextInputLayout
-                        android:id="@+id/flavor_grade_input"
+                        <Spinner
+                            android:id="@+id/total_grade_spinner"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_weight="1"
+                            android:background="?attr/colorButtonNormal"
+                            android:entries="@array/grade_list" />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/flavor_grade_edit"
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/textView32"
+                            android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:hint="flavor_grade" />
-                    </android.support.design.widget.TextInputLayout>
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/flavor_grade_text" />
 
-                    <android.support.design.widget.TextInputLayout
-                        android:id="@+id/taste_grade_input"
+                        <Spinner
+                            android:id="@+id/flavor_grade_spinner"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_weight="1"
+                            android:background="?attr/colorButtonNormal"
+                            android:entries="@array/grade_list" />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/taste_grade_edit"
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/textView33"
+                            android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:hint="taste_grade" />
-                    </android.support.design.widget.TextInputLayout>
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/taste_grade_text" />
+
+                        <Spinner
+                            android:id="@+id/taste_grade_spinner"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_weight="1"
+                            android:background="?attr/colorButtonNormal"
+                            android:entries="@array/grade_list" />
+                    </LinearLayout>
+
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="2"
+                    android:layout_weight="1"
                     android:orientation="vertical">
 
                     <ImageView
@@ -205,7 +246,7 @@
                     android:id="@+id/review_edit"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="review" />
+                    android:hint="コメント" />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
 

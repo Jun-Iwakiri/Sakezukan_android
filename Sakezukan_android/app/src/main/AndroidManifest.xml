@@ -3,6 +3,9 @@
     package="com.example.iwakiri.sakezukan_android">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -18,19 +21,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FindActivity" />
-        <activity android:name=".FindRegistrationActivity" />
-        <activity android:name=".FindFoundDataActivity" />
-        <activity android:name=".FindNoDataActivity" />
-        <activity android:name=".GuideActivity" />
-        <activity android:name=".TasteActivity" />
-        <activity android:name=".HelpActivity" />
         <activity android:name=".HomeUserInfoActivity" />
-        <activity android:name=".TasteRegistrationActivity" />
-        <activity android:name=".TasteTastedDataActivity" />
-        <activity android:name=".TasteNoDataActivity" />
-        <activity android:name=".TasteRegisteredDataActivity" />
+        <activity android:name=".GuideActivity" />
         <activity android:name=".GuideDetailActivity" />
+        <activity
+            android:name=".FindActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".FindFoundDataActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".FindNoDataActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".FindRegistrationActivity" />
+        <activity
+            android:name=".TasteActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".TasteTastedDataActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".TasteNoDataActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".TasteRegistrationActivity" />
+        <activity android:name=".TasteRegisteredDataActivity" />
+        <activity android:name=".HelpActivity" />
 
         <provider
             android:name=".UnifiedDataContentProvider"
@@ -38,6 +53,7 @@
             android:enabled="true"
             android:exported="false" />
 
+        <activity android:name=".StatsActivity"></activity>
     </application>
 
 </manifest>

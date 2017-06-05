@@ -7,6 +7,7 @@
     tools:context="com.example.iwakiri.sakezukan_android.TasteNoDataActivity">
 
     <LinearLayout
+        android:id="@+id/tasteNoDataLinearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -28,6 +29,39 @@
             android:text="@string/no_data_text"
             android:textSize="24sp" />
 
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="入力した文字が正しいか確認する" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="銘柄の一部のみで検索する" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="5">
+
+            <Button
+                android:id="@+id/button73"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:text="新規登録申請"
+                android:textSize="18sp" />
+        </LinearLayout>
+
         <android.support.design.widget.TextInputLayout
             android:id="@+id/textInputLayout5"
             android:layout_width="match_parent"
@@ -38,7 +72,8 @@
                 android:id="@+id/edittext5"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="hint"
+                android:hint="銘柄を入力"
+                android:inputType="text"
                 android:textSize="24sp" />
         </android.support.design.widget.TextInputLayout>
 
@@ -59,40 +94,12 @@
                 android:textSize="24sp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView12"
+        <ListView
+            android:id="@+id/taste_nodata_result_listview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="TextView"
-            android:textSize="24sp" />
+            android:layout_weight="2" />
 
-        <TextView
-            android:id="@+id/textView13"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="TextView"
-            android:textSize="24sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="5">
-
-            <Button
-                android:id="@+id/button73"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
-                android:text="新規登録申請"
-                android:textSize="18sp" />
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

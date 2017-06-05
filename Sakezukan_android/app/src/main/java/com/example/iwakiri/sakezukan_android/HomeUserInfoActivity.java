@@ -2,21 +2,28 @@ package com.example.iwakiri.sakezukan_android;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class HomeUserInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
+    InputMethodManager inputMethodManager;
+    LinearLayout layout;
     private long userInfoId;
     String userName;
     String licenseName;
-    int licenseNumber;
+    String licenseNumber;
     Cursor cursor;
 
     EditText userNameEdit;
@@ -31,7 +38,7 @@ public class HomeUserInfoActivity extends AppCompatActivity implements View.OnCl
     };
 
     Uri uri = ContentUris.withAppendedId(
-            UnifiedDataContentProvider.CONTENT_URI_USER_DATA,
+            UnifiedDataContentProvider.CONTENT_URI_USER_INFO,
             userInfoId
     );
 
@@ -63,10 +70,13 @@ public class HomeUserInfoActivity extends AppCompatActivity implements View.OnCl
         cancelButton.setOnClickListener(this);
         deleteButton.setOnClickListener(this);
 
+        inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        layout = (LinearLayout) findViewById(R.id.homeUserInfoLinearLayout);
+
         getIntent();
 
         cursor = getContentResolver().query(
-                UnifiedDataContentProvider.CONTENT_URI_USER_DATA,
+                UnifiedDataContentProvider.CONTENT_URI_USER_INFO,
                 projeciton,
                 selection,
                 selectionArgs,
@@ -79,12 +89,18 @@ public class HomeUserInfoActivity extends AppCompatActivity implements View.OnCl
             userInfoId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
 
             deleteButton.setVisibility(View.VISIBLE);
-            String userName = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_NAME));
-            String licenseName = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NAME));
-            Integer licenseNumber = cursor.getInt(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NUMBER));
-            userNameEdit.setText(userName);
-            licenseNameEdit.setText(licenseName);
-            licenseNumberEdit.setText(String.valueOf(licenseNumber));
+            userName = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_NAME));
+            licenseName = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NAME));
+            licenseNumber = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NUMBER));
+            if (userName != null) {
+                userNameEdit.setText(userName);
+            }
+            if (licenseName != null) {
+                licenseNameEdit.setText(licenseName);
+            }
+            if (licenseNumber != null) {
+                licenseNumberEdit.setText(String.valueOf(licenseNumber));
+            }
         }
     }
 
@@ -117,35 +133,11 @@ public class HomeUserInfoActivity extends AppCompatActivity implements View.OnCl
                 finish();
                 break;
             case R.id.button52:
-                userName = userNameEdit.getText().toString().trim();
-                licenseName = licenseNameEdit.getText().toString().trim();
-                licenseNumber = Integer.parseInt(licenseNumberEdit.getText().toString().trim());
-
-                ContentValues userInfoValues = new ContentValues();
-                userInfoValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_NAME, userName);
-                userInfoValues.put(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NAME, licenseName);
-                userInfoValues.put(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NUMBER, licenseNumber);
-
-                if (cursor != null && cursor.getCount() > 0) {
-                    getContentResolver().update(
-                            uri,
-                            userInfoValues,
-                            UnifiedDataColumns.DataColumns._ID + "=?",
-                            new String[]{Long.toString(userInfoId)}
-                    );
-                } else {
-                    getContentResolver().insert(
-                            UnifiedDataContentProvider.CONTENT_URI_USER_DATA,
-                            userInfoValues
-                    );
-                }
-                Intent editIntent = new Intent();
-                setResult(RESULT_OK, editIntent);
-                finish();
+                registerUserInfo();
                 break;
             case R.id.button27:
                 getContentResolver().delete(
-                        UnifiedDataContentProvider.CONTENT_URI_USER_DATA,
+                        UnifiedDataContentProvider.CONTENT_URI_USER_INFO,
                         UnifiedDataColumns.DataColumns._ID + "=?",
                         new String[]{Long.toString(userInfoId)}
                 );
@@ -156,5 +148,56 @@ public class HomeUserInfoActivity extends AppCompatActivity implements View.OnCl
             case R.id.button53:
                 finish();
         }
+    }
+
+    private void registerUserInfo() {
+        userName = userNameEdit.getText().toString().trim();
+        licenseName = licenseNameEdit.getText().toString().trim();
+        licenseNumber = licenseNumberEdit.getText().toString().trim();
+        if (!userName.isEmpty() || !licenseName.isEmpty() || !licenseNumber.isEmpty()) {
+            ContentValues userInfoValues = new ContentValues();
+            if (!userName.isEmpty()) {
+                userInfoValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_NAME, userName);
+            } else {
+                userInfoValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_USER_NAME);
+            }
+            if (!licenseName.isEmpty()) {
+                userInfoValues.put(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NAME, licenseName);
+            } else {
+                userInfoValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NAME);
+            }
+            if (!licenseNumber.isEmpty()) {
+                Integer licenseNumberInt = Integer.parseInt(licenseNumber);
+                userInfoValues.put(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NUMBER, licenseNumberInt);
+            } else {
+                userInfoValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NUMBER);
+            }
+
+            if (cursor != null && cursor.getCount() > 0) {
+                getContentResolver().update(
+                        uri,
+                        userInfoValues,
+                        UnifiedDataColumns.DataColumns._ID + "=?",
+                        new String[]{Long.toString(userInfoId)}
+                );
+            } else {
+                getContentResolver().insert(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_INFO,
+                        userInfoValues
+                );
+            }
+            Intent editIntent = new Intent();
+            setResult(RESULT_OK, editIntent);
+            finish();
+        } else {
+            Toast.makeText(this, "不当な文字列", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        inputMethodManager.hideSoftInputFromWindow(layout.getWindowToken(), inputMethodManager.HIDE_NOT_ALWAYS);
+        layout.requestFocus();
+        return true;
     }
 }

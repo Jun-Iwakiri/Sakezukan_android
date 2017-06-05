@@ -1,0 +1,94 @@
+{
+  "user_info": {
+    "user_info_id": 1,
+    "user_name": "Jユーザ名",
+    "license_name": "J資格名",
+    "license_number": 12345
+  },
+  "sakes": [
+    {
+      "sake_id": 1,
+      "brand": "J銘柄1S",
+      "brewery_name": "J酒蔵名1S",
+      "brewery_address": "青森県",
+      "lower_alcohol_content": 10.1,
+      "upper_alcohol_content": 10.2,
+      "category": "Jカテゴリ1S",
+      "master_sake_id": "1"
+    },
+    {
+      "sake_id": 2,
+      "brand": "J銘柄2S",
+      "brewery_name": "J酒蔵名2S",
+      "brewery_address": "宮城県",
+      "lower_alcohol_content": 10.3,
+      "upper_alcohol_content": 10.4,
+      "category": "Jカテゴリ2S",
+      "master_sake_id": "2"
+    }
+  ],
+  "user_sakes": [
+    {
+      "sake_id": 3,
+      "brand": "J銘柄3US",
+      "brewery_name": "J酒蔵名3US",
+      "brewery_address": "徳島県",
+      "lower_alcohol_content": 10.5,
+      "upper_alcohol_content": 10.6,
+      "category": "Jカテゴリ3US",
+      "master_sake_id": "0"
+    }
+  ],
+  "user_records": [
+    {
+      "user_record_id": 1,
+      "found_date": "2017-03-22",
+      "tasted_date": "2017-05-13",
+      "total_grade": "4",
+      "flavor_grade": "2",
+      "taste_grade": "5",
+      "user_record_image": null,
+      "review": "J銘柄2S試飲記録",
+      "recorded_master_sake_id": 2,
+      "user_sake_id": 0
+    },
+    {
+      "user_record_id": 2,
+      "found_date": "2017-05-29",
+      "tasted_date": null,
+      "total_grade": null,
+      "flavor_grade": null,
+      "taste_grade": null,
+      "user_record_image": null,
+      "review": null,
+      "recorded_master_sake_id": 0,
+      "user_sake_id": 3
+    }
+  ],
+  "informations": [
+    {
+      "information_id": 1,
+      "information_title": "Jタイトル1",
+      "information_body": "Jボディ1"
+    },
+    {
+      "information_id": 2,
+      "information_title": "Jタイトル2",
+      "information_body": "Jボディ2"
+    }
+  ],
+  "help_categories": [
+    {
+      "help_category_id": 1,
+      "help_category_body": "Jカテゴリ1"
+    }
+  ],
+  "help_contents": [
+    {
+      "help_content_id": 1,
+      "recorded_help_category_id": 1,
+      "help_title": "Jタイトル1",
+      "help_body": "Jボディ1"
+    }
+  ]
+}

@@ -16,14 +16,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_ID;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_MASTER_SAKE_ID;
+
 public class GuideActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private CustomAdapter customAdapter;
-
-    public static final String EXTRA_MASTER_SAKE_ID = "EXTRA_MASTER_SAKE_ID";
+    private GuideListSakeAdapter guideListSakeAdapter;
 
     private String[] sakeProjection = {
             UnifiedDataColumns.DataColumns._ID,
@@ -33,27 +36,36 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
             UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT,
             UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT,
             UnifiedDataColumns.DataColumns.COLUMN_CATEGORY,
-            UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND,
-            UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED,
             UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID
     };
     private String[] userRecordProjection = {
             UnifiedDataColumns.DataColumns._ID,
-            UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND,
-            UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED,
+            UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE,
+            UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE,
             UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE,
+            UnifiedDataColumns.DataColumns.COLUMN_REVIEW,
             UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID,
             UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID
     };
 
     private String selection = null;
     private String[] selectionArgs = null;
-    private String sortOrder = null;
-
-    final ArrayList<UnifiedData> unifiedData = new ArrayList<>();
-    UnifiedData unifiedDataItem;
 
     Cursor cursor;
+    Cursor sakeCursor;
+    Cursor userSakeCursor;
+    Cursor userRecordCursor;
+    private long sakeId;
+    private long masterSakeId;
+    private long userRecordId;
+    boolean isfilterdFoundDate = false;
+    boolean isfilterdTasteDate = false;
+
+    final ArrayList<UnifiedData> unifiedDatas = new ArrayList<>();
+    UnifiedData unifiedDataItem;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -66,20 +78,29 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.id:
-                customAdapter.clear();
-                sortOrder = UnifiedDataColumns.DataColumns._ID + " DESC";
+                guideListSakeAdapter.clear();
+                isfilterdFoundDate = false;
+                isfilterdTasteDate = false;
                 queryListItem();
+                guideListSakeAdapter.notifyDataSetChanged();
                 return true;
-            case R.id.date_found:
-                customAdapter.clear();
-                sortOrder = UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND;
+            case R.id.only_found:
+                guideListSakeAdapter.clear();
+                isfilterdFoundDate = true;
+                isfilterdTasteDate = false;
                 queryListItem();
+                guideListSakeAdapter.notifyDataSetChanged();
                 return true;
-            case R.id.total_grade:
-                customAdapter.clear();
-                sortOrder = UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE;
+            case R.id.only_tasted:
+                guideListSakeAdapter.clear();
+                isfilterdTasteDate = true;
+                isfilterdFoundDate = false;
                 queryListItem();
+                guideListSakeAdapter.notifyDataSetChanged();
                 return true;
+            case R.id.stats:
+                Intent intent = new Intent(this, StatsActivity.class);
+                startActivity(intent);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -95,7 +116,9 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
         Button tasteButton = (Button) findViewById(R.id.button85);
         Button findButton = (Button) findViewById(R.id.button84);
         Button helpButton = (Button) findViewById(R.id.button83);
+        TextView emptyText = (TextView) findViewById(R.id.textView9);
         final ListView sakeList = (ListView) findViewById(R.id.sake_listview);
+        sakeList.setEmptyView(emptyText);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
@@ -103,79 +126,120 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
         helpButton.setOnClickListener(this);
 
         queryListItem();
-
-        customAdapter = new CustomAdapter(this, R.layout.sake_list_item, unifiedData);
-        sakeList.setAdapter(customAdapter);
+        guideListSakeAdapter = new GuideListSakeAdapter(this, R.layout.sake_list_item, unifiedDatas);
+        sakeList.setAdapter(guideListSakeAdapter);
 
         sakeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 UnifiedData clickedData = (UnifiedData) sakeList.getItemAtPosition(position);
-                long sakeId = clickedData.getSakeId();
-                long masterSakeId = clickedData.getMasterSakeId();
-                Intent intent = new Intent(getApplicationContext(), GuideDetailActivity.class);
-                intent.putExtra(FindActivity.EXTRA_ID, sakeId);
-                intent.putExtra(EXTRA_MASTER_SAKE_ID, masterSakeId);
-                startActivity(intent);
+                sakeId = clickedData.getSakeId();
+                masterSakeId = clickedData.getMasterSakeId();
+                userRecordId = clickedData.getUserRecordId();
+                if (userRecordId > 0) {
+                    Intent intent = new Intent(getApplicationContext(), GuideDetailActivity.class);
+                    intent.putExtra(EXTRA_ID, sakeId);
+                    intent.putExtra(EXTRA_MASTER_SAKE_ID, masterSakeId);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "未発見の銘柄", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-
         getSupportLoaderManager().initLoader(0, null, this);
     }
 
     private void queryListItem() {
 
-        Cursor allUserRecordCursor = getContentResolver().query(
-                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
-                userRecordProjection,
-                selection,
-                selectionArgs,
-                sortOrder
+        sakeCursor = getContentResolver().query(
+                UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                null,
+                null,
+                null,
+                null
         );
-        boolean next = allUserRecordCursor.moveToFirst();
+        userSakeCursor = getContentResolver().query(
+                UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                null,
+                null,
+                null,
+                null
+        );
+        cursor = sakeCursor;
+        boolean next = cursor.moveToFirst();
         while (next) {
-            Uri sakeTableUri;
-            long masterSakeId = allUserRecordCursor.getLong(allUserRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
-            long userSakeId = allUserRecordCursor.getLong(allUserRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID));
-            long id;
-            if (masterSakeId > 0) {
-                id = masterSakeId;
-                sakeTableUri = UnifiedDataContentProvider.CONTENT_URI_SAKE;
+            addItemData(next);
+            if (cursor == sakeCursor) {
+                cursor = userSakeCursor;
+                next = cursor.moveToFirst();
             } else {
-                id = userSakeId;
-                sakeTableUri = UnifiedDataContentProvider.CONTENT_URI_USER_SAKE;
+                next = cursor.moveToNext();
             }
-            String sakeSelection = UnifiedDataColumns.DataColumns._ID + "=?";
-            String[] sakeSelectionArgs = new String[]{Long.toString(id)};
-            Uri sakeUri = ContentUris.withAppendedId(
-                    sakeTableUri,
-                    id
+        }
+    }
+
+    private void addItemData(boolean next) {
+        boolean itemAddNext = next;
+        while (itemAddNext) {
+            unifiedDataItem = new UnifiedData();
+
+            sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+            String brand = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
+            String breweryName = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME));
+            String breweryAddress = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS));
+            float lowerAlcoholContent = cursor.getFloat(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT));
+            float upperAlcoholContent = cursor.getFloat(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT));
+            String category = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_CATEGORY));
+            masterSakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
+
+            //該当idを格納している試飲記録問合せ
+            Uri userRecordUri = ContentUris.withAppendedId(
+                    UnifiedDataContentProvider.CONTENT_URI_USER_RECORD,
+                    sakeId
             );
-            cursor = getContentResolver().query(
-                    sakeUri,
-                    sakeProjection,
-                    sakeSelection,
-                    sakeSelectionArgs,
+            if (cursor == sakeCursor) {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID + "=?";
+            } else {
+                selection = UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID + "=?";
+            }
+            selectionArgs = new String[]{Long.toString(sakeId)};
+            userRecordCursor = getContentResolver().query(
+                    userRecordUri,
+                    userRecordProjection,
+                    selection,
+                    selectionArgs,
                     null
             );
-            cursor.moveToFirst();
+            userRecordCursor.moveToFirst();
+            if (userRecordCursor != null && userRecordCursor.getCount() > 0) {
+                userRecordId = userRecordCursor.getLong(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                String foundDate = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE));
+                String tastedDate = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE));
+                String totalGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE));
+                String flavorGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE));
+                String tasteGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE));
+                String review = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_REVIEW));
 
-            String foundDate = allUserRecordCursor.getString(allUserRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND));
-            if (foundDate != null) {
-                long sakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
-                String brand = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
-                String breweryName = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME));
-                String breweryAddress = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS));
-                float lowerAlcoholContent = cursor.getFloat(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT));
-                float upperAlcoholContent = cursor.getFloat(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT));
-                String category = cursor.getString(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_CATEGORY));
-                masterSakeId = cursor.getLong(cursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
-
-                unifiedDataItem = new UnifiedData();
-                unifiedDataItem.setSake(sakeId, brand, breweryName, breweryAddress, lowerAlcoholContent, upperAlcoholContent, category, masterSakeId);
-                unifiedData.add(unifiedDataItem);
+                if (isfilterdTasteDate) {
+                    if (tastedDate != null) {
+                        unifiedDataItem.setUserRecord(userRecordId, foundDate, tastedDate, totalGrade, flavorGrade, tasteGrade, review);
+                        unifiedDataItem.setSake(sakeId, brand, breweryName, breweryAddress, lowerAlcoholContent, upperAlcoholContent, category, masterSakeId);
+                        unifiedDatas.add(unifiedDataItem);
+                    }
+                } else {
+                    unifiedDataItem.setUserRecord(userRecordId, foundDate, tastedDate, totalGrade, flavorGrade, tasteGrade, review);
+                    unifiedDataItem.setSake(sakeId, brand, breweryName, breweryAddress, lowerAlcoholContent, upperAlcoholContent, category, masterSakeId);
+                    unifiedDatas.add(unifiedDataItem);
+                }
+            } else {
+                if (!isfilterdFoundDate) {
+                    if (!isfilterdTasteDate) {
+                        unifiedDataItem.setSake(sakeId, brand, breweryName, breweryAddress, lowerAlcoholContent, upperAlcoholContent, category, masterSakeId);
+                        unifiedDatas.add(unifiedDataItem);
+                    }
+                }
             }
-            next = allUserRecordCursor.moveToNext();
+            itemAddNext = cursor.moveToNext();
         }
     }
 
@@ -214,8 +278,8 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(
                 this,
-                UnifiedDataContentProvider.CONTENT_URI_SAKE,
-                sakeProjection,
+                UnifiedDataContentProvider.CONTENT_URI_USER_RECORD,
+                userRecordProjection,
                 selection,
                 selectionArgs,
                 null
@@ -224,11 +288,10 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        customAdapter.notifyDataSetChanged();
+        guideListSakeAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 }

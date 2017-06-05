@@ -7,15 +7,14 @@
     tools:context="com.example.iwakiri.sakezukan_android.FindActivity">
 
     <LinearLayout
+        android:id="@+id/findLinearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:gravity="center"
         android:orientation="vertical"
-        android:weightSum="6"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout6"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -41,6 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="銘柄を入力"
+                android:inputType="text"
                 android:textSize="24sp" />
         </android.support.design.widget.TextInputLayout>
 
@@ -60,6 +60,14 @@
                 android:text="探す"
                 android:textSize="24sp" />
         </LinearLayout>
+
+        <ListView
+            android:id="@+id/find_result_listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp" />
 
     </LinearLayout>
 

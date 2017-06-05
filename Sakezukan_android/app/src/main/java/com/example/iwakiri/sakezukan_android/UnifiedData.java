@@ -8,8 +8,10 @@ import java.util.ArrayList;
 
 public class UnifiedData extends ArrayList<UnifiedData> {
     private long userInfoId;
+    private String userName;
     private String licenseName;
-    private int licenseNumber;
+    private Integer licenseNumber;
+
     private long sakeId;
     private String brand;
     private String breweryName;
@@ -17,20 +19,30 @@ public class UnifiedData extends ArrayList<UnifiedData> {
     private float lowerAlcoholContent;
     private float upperAlcoholContent;
     private String category;
-    private Boolean hasFound;
-    private Boolean hasTasted;
     private long masterSakeId;
+
     private long userRecordId;
-    private String dateFound;
-    private String dateTasted;
-    private int totalGrade;
-    private int flavorGrade;
-    private int tasteGrade;
+    private String foundDate;
+    private String tastedDate;
+    private String totalGrade;
+    private String flavorGrade;
+    private String tasteGrade;
+    private String userRecordImage;
     private String review;
-    private long helpId;
-    private String helpBody;
+    private long recordedMasterSakeId;
+    private long userSakeId;
+
     private long informationId;
+    private String informationTitle;
     private String informationBody;
+
+    private long helpCategoryId;
+    private String helpCategoryBody;
+
+    private long helpContentId;
+    private long recordedHelpCategoryId;
+    private String helpTitle;
+    private String helpBody;
 
     public long getUserInfoId() {
         return userInfoId;
@@ -38,6 +50,14 @@ public class UnifiedData extends ArrayList<UnifiedData> {
 
     public void setUserInfoId(long userInfoId) {
         this.userInfoId = userInfoId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getLicenseName() {
@@ -48,11 +68,11 @@ public class UnifiedData extends ArrayList<UnifiedData> {
         this.licenseName = licenseName;
     }
 
-    public int getLicenseNumber() {
+    public Integer getLicenseNumber() {
         return licenseNumber;
     }
 
-    public void setLicenseNumber(int licenseNumber) {
+    public void setLicenseNumber(Integer licenseNumber) {
         this.licenseNumber = licenseNumber;
     }
 
@@ -112,22 +132,6 @@ public class UnifiedData extends ArrayList<UnifiedData> {
         this.category = category;
     }
 
-    public Boolean getHasFound() {
-        return hasFound;
-    }
-
-    public void setHasFound(Boolean hasFound) {
-        this.hasFound = hasFound;
-    }
-
-    public Boolean getHasTasted() {
-        return hasTasted;
-    }
-
-    public void setHasTasted(Boolean hasTasted) {
-        this.hasTasted = hasTasted;
-    }
-
     public long getMasterSakeId() {
         return masterSakeId;
     }
@@ -144,44 +148,52 @@ public class UnifiedData extends ArrayList<UnifiedData> {
         this.userRecordId = userRecordId;
     }
 
-    public String getDateFound() {
-        return dateFound;
+    public String getFoundDate() {
+        return foundDate;
     }
 
-    public void setDateFound(String dateFound) {
-        this.dateFound = dateFound;
+    public void setFoundDate(String foundDate) {
+        this.foundDate = foundDate;
     }
 
-    public String getDateTasted() {
-        return dateTasted;
+    public String getTastedDate() {
+        return tastedDate;
     }
 
-    public void setDateTasted(String dateTasted) {
-        this.dateTasted = dateTasted;
+    public void setTastedDate(String tastedDate) {
+        this.tastedDate = tastedDate;
     }
 
-    public int getTotalGrade() {
+    public String getTotalGrade() {
         return totalGrade;
     }
 
-    public void setTotalGrade(int totalGrade) {
+    public void setTotalGrade(String totalGrade) {
         this.totalGrade = totalGrade;
     }
 
-    public int getFlavorGrade() {
+    public String getFlavorGrade() {
         return flavorGrade;
     }
 
-    public void setFlavorGrade(int flavorGrade) {
+    public void setFlavorGrade(String flavorGrade) {
         this.flavorGrade = flavorGrade;
     }
 
-    public int getTasteGrade() {
+    public String getTasteGrade() {
         return tasteGrade;
     }
 
-    public void setTasteGrade(int tasteGrade) {
+    public void setTasteGrade(String tasteGrade) {
         this.tasteGrade = tasteGrade;
+    }
+
+    public String getUserRecordImage() {
+        return userRecordImage;
+    }
+
+    public void setUserRecordImage(String userRecordImage) {
+        this.userRecordImage = userRecordImage;
     }
 
     public String getReview() {
@@ -192,20 +204,20 @@ public class UnifiedData extends ArrayList<UnifiedData> {
         this.review = review;
     }
 
-    public long getHelpId() {
-        return helpId;
+    public long getRecordedMasterSakeId() {
+        return recordedMasterSakeId;
     }
 
-    public void setHelpId(long helpId) {
-        this.helpId = helpId;
+    public void setRecordedMasterSakeId(long recordedMasterSakeId) {
+        this.recordedMasterSakeId = recordedMasterSakeId;
     }
 
-    public String getHelpBody() {
-        return helpBody;
+    public long getUserSakeId() {
+        return userSakeId;
     }
 
-    public void setHelpBody(String helpBody) {
-        this.helpBody = helpBody;
+    public void setUserSakeId(long userSakeId) {
+        this.userSakeId = userSakeId;
     }
 
     public long getInformationId() {
@@ -216,6 +228,14 @@ public class UnifiedData extends ArrayList<UnifiedData> {
         this.informationId = informationId;
     }
 
+    public String getInformationTitle() {
+        return informationTitle;
+    }
+
+    public void setInformationTitle(String informationTitle) {
+        this.informationTitle = informationTitle;
+    }
+
     public String getInformationBody() {
         return informationBody;
     }
@@ -224,84 +244,74 @@ public class UnifiedData extends ArrayList<UnifiedData> {
         this.informationBody = informationBody;
     }
 
-    public void getUserInfo() {
-        getUserInfoId();
-        getLicenseName();
-        getLicenseNumber();
+    public long getHelpCategoryId() {
+        return helpCategoryId;
     }
 
-    public void getSake() {
-        getSakeId();
-        getBrand();
-        getBreweryName();
-        getBreweryAddress();
-        getLowerAlcoholContent();
-        getUpperAlcoholContent();
-        getCategory();
-        getHasFound();
-        getHasTasted();
-        getMasterSakeId();
+    public void setHelpCategoryId(long helpCategoryId) {
+        this.helpCategoryId = helpCategoryId;
     }
 
-    public void getUserRecord() {
-        getUserRecordId();
-        getDateFound();
-        getDateTasted();
-        getTotalGrade();
-        getFlavorGrade();
-        getTasteGrade();
-        getReview();
+    public String getHelpCategoryBody() {
+        return helpCategoryBody;
     }
 
-    public void getInformation() {
-        getInformationId();
-        getInformationBody();
+    public void setHelpCategoryBody(String helpCategoryBody) {
+        this.helpCategoryBody = helpCategoryBody;
     }
 
-    public void getHelp() {
-        getHelpId();
-        getHelpBody();
+    public long getHelpContentId() {
+        return helpContentId;
     }
 
-    public void setUserInfo(long userInfoId, String licenseName, int licenseNumber) {
-        setUserInfoId(userInfoId);
-        setLicenseName(licenseName);
-        setLicenseNumber(licenseNumber);
+    public void setHelpContentId(long helpContentId) {
+        this.helpContentId = helpContentId;
     }
 
-    public void setSake(long sakeId, String brand, String breweryName, String breweryAddress, float lowerAlkoholContent,
-                        float upperAlkoholContent, String category,long masterSakeId) {
+    public long getRecordedHelpCategoryId() {
+        return recordedHelpCategoryId;
+    }
+
+    public void setRecordedHelpCategoryId(long recordedHelpCategoryId) {
+        this.recordedHelpCategoryId = recordedHelpCategoryId;
+    }
+
+    public String getHelpTitle() {
+        return helpTitle;
+    }
+
+    public void setHelpTitle(String helpTitle) {
+        this.helpTitle = helpTitle;
+    }
+
+    public String getHelpBody() {
+        return helpBody;
+    }
+
+    public void setHelpBody(String helpBody) {
+        this.helpBody = helpBody;
+    }
+
+    public void setSake(long sakeId, String brand, String breweryName, String breweryAddress, float lowerAlcoholContent,
+                        float upperAlcoholContent, String category, long masterSakeId) {
         setSakeId(sakeId);
         setBrand(brand);
         setBreweryName(breweryName);
         setBreweryAddress(breweryAddress);
-        setLowerAlcoholContent(lowerAlkoholContent);
-        setUpperAlcoholContent(upperAlkoholContent);
+        setLowerAlcoholContent(lowerAlcoholContent);
+        setUpperAlcoholContent(upperAlcoholContent);
         setCategory(category);
-        setHasFound(hasFound);
-        setHasTasted(hasTasted);
         setMasterSakeId(masterSakeId);
     }
 
-    public void setUserRecord(long userRecordId, String dateFound, String dataTasted,
-                              int totalGrade, int flavorGrade, int tasteGrade, String review) {
+    public void setUserRecord(long userRecordId, String foundDate, String tastedDate, String totalGrade, String flavorGrade, String tasteGrade, String review) {
         setUserRecordId(userRecordId);
-        setDateFound(dateFound);
-        setDateTasted(dataTasted);
+        setFoundDate(foundDate);
+        setTastedDate(tastedDate);
         setTotalGrade(totalGrade);
         setFlavorGrade(flavorGrade);
         setTasteGrade(tasteGrade);
         setReview(review);
-    }
-
-    public void setInformation(long informationId, String infromationBody) {
-        setInformationId(informationId);
-        setInformationBody(infromationBody);
-    }
-
-    public void setHelp(long helpId, String helpBody) {
-        setHelpId(helpId);
-        setHelpBody(helpBody);
     }
 }
 

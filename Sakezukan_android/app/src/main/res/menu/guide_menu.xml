@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
-        android:id="@+id/id"
-        android:title="図鑑番号順(デフォルト)" />
+        android:id="@+id/stats"
+        android:title="統計を見る"></item>
+
     <item
-        android:id="@+id/date_found"
-        android:title="発見日順" />
-    <item
-        android:id="@+id/total_grade"
-        android:title="総合評価順" />
+        android:id="@+id/sort"
+        android:title="フィルター">
+        <menu>
+            <item
+                android:id="@+id/id"
+                android:title="全件表示(デフォルト)" />
+            <item
+                android:id="@+id/only_found"
+                android:title="発見済のみ表示" />
+            <item
+                android:id="@+id/only_tasted"
+                android:title="試飲済のみ表示" />
+        </menu>
+    </item>
+
 </menu>

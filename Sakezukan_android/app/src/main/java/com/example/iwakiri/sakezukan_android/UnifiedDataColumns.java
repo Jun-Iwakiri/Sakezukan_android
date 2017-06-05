@@ -11,13 +11,13 @@ public class UnifiedDataColumns {
     }
 
     public static abstract class DataColumns implements BaseColumns {
-        public static final String TABLE_USER_DATA = "user_data";
+        public static final String TABLE_USER_INFO = "user_info";
         public static final String TABLE_SAKE = "sake";
         public static final String TABLE_USER_SAKE = "user_sake";
-        public static final String TABLE_USER_RECORDS = "user_records";
-        public static final String TABLE_INFORMATIONS = "informations";
+        public static final String TABLE_USER_RECORD = "user_record";
+        public static final String TABLE_INFORMATION = "information";
         public static final String TABLE_HELP_CATEGORY = "help_category";
-        public static final String TABLE_HELP_CONTENTS = "help_contents";
+        public static final String TABLE_HELP_CONTENT = "help_content";
         public static final String COLUMN_USER_NAME = "user_name";
         public static final String COLUMN_LICENSE_NAME = "license_name";
         public static final String COLUMN_LICENSE_NUMBER = "license_number";
@@ -27,21 +27,18 @@ public class UnifiedDataColumns {
         public static final String COLUMN_LOWER_ALCOHOL_CONTENT = "lower_alcohol_content";
         public static final String COLUMN_UPPER_ALCOHOL_CONTENT = "upper_alcohol_content";
         public static final String COLUMN_CATEGORY = "category";
-        public static final String COLUMN_HAS_FOUND = "has_found";
-        public static final String COLUMN_HAS_TASTED = "has_tasted";
-        public static final String COLUMN_USER_RECORDS_ID = "user_records_id";
         public static final String COLUMN_MASTER_SAKE_ID = "master_sake_id";
-        public static final String COLUMN_DATE_FOUND = "date_found";
-        public static final String COLUMN_DATE_TASTED = "date_tasted";
+        public static final String COLUMN_FOUND_DATE = "found_date";
+        public static final String COLUMN_TASTED_DATE = "tasted_date";
         public static final String COLUMN_TOTAL_GRADE = "total_grade";
         public static final String COLUMN_FLAVOR_GRADE = "flavor_grade";
         public static final String COLUMN_TASTE_GRADE = "taste_grade";
-        public static final String COLUMN_USER_RECORDS_IMAGE = "user_records_image";
+        public static final String COLUMN_USER_RECORD_IMAGE = "user_record_image";
         public static final String COLUMN_REVIEW = "review";
         public static final String COLUMN_USER_SAKE_ID = "user_sake_id";
         public static final String COLUMN_INFORMATION_TITLE = "information_title";
         public static final String COLUMN_INFORMATION_BODY = "information_body";
-        public static final String COLUMN_HELP_CATEGORY = "help_category";
+        public static final String COLUMN_HELP_CATEGORY_BODY = "help_category_body";
         public static final String COLUMN_HELP_CATEGORY_ID = "help_category_id";
         public static final String COLUMN_HELP_TITLE = "help_title";
         public static final String COLUMN_HELP_BODY = "help_body";

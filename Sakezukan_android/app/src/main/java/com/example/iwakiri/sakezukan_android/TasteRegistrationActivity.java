@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,54 +14,116 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_HAS_TASTED;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_ID;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_IS_REQUESTED_ADD;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_IS_REQUESTED_EDIT;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_IS_REQUESTED_UPDATE;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_MASTER_SAKE_ID;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_IS_REQUESTED_NEW_MASTER;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_USER_RECORD_ID;
 
 public class TasteRegistrationActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int REQUEST_CODE = 1;
     private static final String TAG = "T_RegistrationActivity";
-    public static final String LAST_INSERT_ROWID = "ROWID = last_insert_rowid()";
-    public static final String EXTRA_USER_SAKE_ID = "EXTRA_USER_SAKE_ID";
 
+    InputMethodManager inputMethodManager;
+    LinearLayout layout;
+    Intent intent;
+    Cursor sakeCursor;
+    Cursor userSakeCursor;
+    Cursor userRecordCursor;
+    Uri uri;
+    Uri sakeUri;
+    Uri userRecordUri;
     private long sakeId;
+    private long masterSakeId;
     private long userSakeId;
     private long userRecordId;
-    Boolean hasFound;
+    private String[] sakeProjection = {
+            UnifiedDataColumns.DataColumns._ID,
+            UnifiedDataColumns.DataColumns.COLUMN_BRAND,
+            UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME,
+            UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS,
+            UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT,
+            UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT,
+            UnifiedDataColumns.DataColumns.COLUMN_CATEGORY,
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID
+    };
+    private String[] userRecordProjection = {
+            UnifiedDataColumns.DataColumns._ID,
+            UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE,
+            UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE,
+            UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE,
+            UnifiedDataColumns.DataColumns.COLUMN_REVIEW,
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID,
+            UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID
+    };
     Boolean hasTasted;
     Boolean isRequestedNewMaster;
-    Boolean isUserSake;
     Boolean isRequestedEdit;
-    Cursor sakeCursor;
+    Boolean isRequestedAdd;
+    Boolean isRequestedUpdate;
+    String foundBrand;
     String foundDate;
     String tastedDate;
-    Integer totalGrade;
-    Integer flavorGrade;
-    Integer tasteGrade;
+    String totalGrade;
+    String flavorGrade;
+    String tasteGrade;
     String image;
     String review;
-    ContentValues userRecordsValues;
+    String brand;
+    String breweryName;
+    String breweryAddress;
+    String category;
+    ContentValues userRecordValues;
     ContentValues sakeValues;
     Uri imageUri;
     String imagePath = null;
+    private String selection = null;
+    private String[] selectionArgs = null;
 
     ImageView imageView;
-    EditText totalGradeEdit;
-    EditText flavorGradeEdit;
-    EditText tasteGradeEdit;
     EditText reviewEdit;
     EditText brandEdit;
     EditText breweryNameEdit;
-    EditText breweryAddressEdit;
     EditText categoryEdit;
+    TextView textView;
+
+    Spinner totalGradeSpinner;
+    Spinner flavorGradeSpinner;
+    Spinner tasteGradeSpinner;
+    Spinner breweryAddressSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,14 +141,14 @@ public class TasteRegistrationActivity extends AppCompatActivity implements View
         Button cameraButton = (Button) findViewById(R.id.button8);
         Button cancelButton = (Button) findViewById(R.id.button76);
         imageView = (ImageView) findViewById(R.id.imageView4);
-        totalGradeEdit = (EditText) findViewById(R.id.total_grade_edit);
-        flavorGradeEdit = (EditText) findViewById(R.id.flavor_grade_edit);
-        tasteGradeEdit = (EditText) findViewById(R.id.taste_grade_edit);
         reviewEdit = (EditText) findViewById(R.id.review_edit);
         brandEdit = (EditText) findViewById(R.id.brand_edit);
         breweryNameEdit = (EditText) findViewById(R.id.brewery_name_edit);
-        breweryAddressEdit = (EditText) findViewById(R.id.brewery_address_edit);
         categoryEdit = (EditText) findViewById(R.id.category_edit);
+        totalGradeSpinner = (Spinner) findViewById(R.id.total_grade_spinner);
+        flavorGradeSpinner = (Spinner) findViewById(R.id.flavor_grade_spinner);
+        tasteGradeSpinner = (Spinner) findViewById(R.id.taste_grade_spinner);
+        breweryAddressSpinner = (Spinner) findViewById(R.id.brewery_address_spinner);
         homeButton.setOnClickListener(this);
         guideButton.setOnClickListener(this);
         tasteButton.setOnClickListener(this);
@@ -95,146 +158,242 @@ public class TasteRegistrationActivity extends AppCompatActivity implements View
         cameraButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
 
-        TextView textView = (TextView) findViewById(R.id.textView15);
+        inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        layout = (LinearLayout) findViewById(R.id.tasteRegistrationLinearLayout);
 
+        createSpinner();
+
+        textView = (TextView) findViewById(R.id.textView15);
         linearLayout3.setVisibility(View.GONE);
-        Intent intent = getIntent();
-        isRequestedEdit = intent.getBooleanExtra(TasteRegisteredDataActivity.EXTRA_IS_REQUESTED_EDIT, false);
-        isRequestedNewMaster = intent.getBooleanExtra(TasteNoDataActivity.EXTRA_REQUEST, false);
-        isUserSake = intent.getBooleanExtra(FindActivity.EXTRA_IS_USER_SAKE, false);
+        intent = getIntent();
+        isRequestedEdit = intent.getBooleanExtra(EXTRA_IS_REQUESTED_EDIT, false);
+        isRequestedNewMaster = intent.getBooleanExtra(EXTRA_IS_REQUESTED_NEW_MASTER, false);
+        isRequestedAdd = intent.getBooleanExtra(EXTRA_IS_REQUESTED_ADD, false);
+        isRequestedUpdate = intent.getBooleanExtra(EXTRA_IS_REQUESTED_UPDATE, false);
+
         if (!isRequestedNewMaster) {
-            sakeId = intent.getLongExtra(FindActivity.EXTRA_ID, 0L);
-            Log.v("tag", String.valueOf(sakeId));
-            Uri uri;
-            if (isUserSake) {
-                uri = ContentUris.withAppendedId(
-                        UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
-                        sakeId
-                );
+            //既存日本酒データへの試飲登録時（マスター、ローカル）
+            specifyUserRecord();
+            //編集リクエスト時
+            if (isRequestedEdit || isRequestedUpdate) {
+                setUserRecordData();
             } else {
-                uri = ContentUris.withAppendedId(
-                        UnifiedDataContentProvider.CONTENT_URI_SAKE,
-                        sakeId
-                );
-            }
-            String[] projection = {
-                    UnifiedDataColumns.DataColumns._ID,
-                    UnifiedDataColumns.DataColumns.COLUMN_BRAND,
-                    UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND,
-                    UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED,
-            };
-            sakeCursor = getContentResolver().query(
-                    uri,
-                    projection,
-                    UnifiedDataColumns.DataColumns._ID + "=?",
-                    new String[]{Long.toString(sakeId)},
-                    null
-            );
-            sakeCursor.moveToFirst();
-
-            int hasFoundInt = sakeCursor.getInt(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND));
-            int hasTastedInt = sakeCursor.getInt(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED));
-
-            //integerで格納された値をbooleanに変換
-            switch (hasFoundInt) {
-                case 0:
-                    hasFound = false;
-                    break;
-                case 1:
-                    hasFound = true;
-                    break;
-            }
-            switch (hasTastedInt) {
-                case 0:
-                    hasTasted = false;
-                    break;
-                case 1:
-                    hasTasted = true;
-                    break;
-            }
-
-            String foundStr = sakeCursor.getString(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
-            if (isRequestedEdit) {
-
-                userRecordId = intent.getLongExtra(TasteActivity.EXTRA_USER_RECORDS_ID, 0L);
-
-                Uri userRecordUri = ContentUris.withAppendedId(
-                        UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
-                        userRecordId
-                );
-                String[] userRecordProjection = {
-                        UnifiedDataColumns.DataColumns._ID,
-                        UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND,
-                        UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED,
-                        UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
-                        UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
-                        UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
-                        UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE,
-                        UnifiedDataColumns.DataColumns.COLUMN_REVIEW
-                };
-                Cursor userRecordCursor = getContentResolver().query(
-                        userRecordUri,
-                        userRecordProjection,
-                        UnifiedDataColumns.DataColumns._ID + "=?",
-                        new String[]{Long.toString(userRecordId)},
-                        null
-                );
-                userRecordCursor.moveToFirst();
-
-                totalGrade = userRecordCursor.getInt(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE));
-                flavorGrade = userRecordCursor.getInt(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE));
-                tasteGrade = userRecordCursor.getInt(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE));
-                review = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_REVIEW));
-                imagePath = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE));
-
-                if (imagePath != null) {
-                    //重複
-                    Bitmap bitmap = null;
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(imagePath, options);
-
-                    int imageWidth = options.outWidth;
-                    int imageHeight = options.outHeight;
-
-                    Log.v(TAG, "oldSize_" + imageWidth + ":" + imageHeight);
-
-                    int size = 1;
-                    if (Math.max(imageWidth, imageHeight) > 640) {
-                        size = Math.max(imageWidth, imageHeight) / 640;
-                    }
-                    options.inSampleSize = size;
-                    options.inJustDecodeBounds = false;
-                    bitmap = BitmapFactory.decodeFile(imagePath, options);
-                    Log.v(TAG, "newSize_" + bitmap.getWidth() + ":" + bitmap.getHeight());
-                    imageView.setImageBitmap(bitmap);
-                }
-
-                totalGradeEdit.setText(Integer.toString(totalGrade));
-                flavorGradeEdit.setText(Integer.toString(flavorGrade));
-                tasteGradeEdit.setText(Integer.toString(tasteGrade));
-                reviewEdit.setText(review);
-                textView.setText(foundStr + "の記録編集");
-            } else {
-                if (hasFound) {
-                    if (hasTasted) {
-                        textView.setText(foundStr + "の試飲記録を追加登録");
+                if (foundDate != null) {
+                    if (tastedDate != null) {
+                        textView.setText(foundBrand + "の試飲記録を更新");
                     } else {
-                        textView.setText(foundStr + "の以前発見した情報の表示");
+                        textView.setText(foundBrand + "の試飲記録登録");
                     }
                 } else {
-                    textView.setText(foundStr + "の発見情報の表示");
+                    textView.setText(foundBrand + "の試飲記録登録");
                 }
             }
         } else {
+            //ローカル日本酒データ作成
             linearLayout3.setVisibility(View.VISIBLE);
             textView.setText("新規登録申請");
-            hasTasted = intent.getBooleanExtra(TasteNoDataActivity.EXTRA_HAS_TASTED, false);
+            hasTasted = intent.getBooleanExtra(EXTRA_HAS_TASTED, false);
             if (!hasTasted) {
                 linearLayout4.setVisibility(View.GONE);
             }
         }
 
+    }
+
+    private void createSpinner() {
+        totalGradeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Spinner spinner = (Spinner) parent;
+                if (position != 0) {
+                    totalGrade = (String) spinner.getSelectedItem();
+                } else {
+                    totalGrade = null;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        flavorGradeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Spinner spinner = (Spinner) parent;
+                if (position != 0) {
+                    flavorGrade = (String) spinner.getSelectedItem();
+                } else {
+                    flavorGrade = null;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        tasteGradeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Spinner spinner = (Spinner) parent;
+                if (position != 0) {
+                    tasteGrade = (String) spinner.getSelectedItem();
+                } else {
+                    tasteGrade = null;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        breweryAddressSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Spinner spinner = (Spinner) parent;
+                if (position != 0) {
+                    breweryAddress = (String) spinner.getSelectedItem();
+                } else {
+                    breweryAddress = null;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void specifyUserRecord() {
+        sakeId = intent.getLongExtra(EXTRA_ID, 0L);
+        masterSakeId = intent.getLongExtra(EXTRA_MASTER_SAKE_ID, 0L);
+        userRecordId = intent.getLongExtra(EXTRA_USER_RECORD_ID, 0L);
+        if (masterSakeId == 0) {
+            uri = UnifiedDataContentProvider.CONTENT_URI_USER_SAKE;
+        } else {
+            uri = UnifiedDataContentProvider.CONTENT_URI_SAKE;
+        }
+        //酒id取得
+        sakeUri = ContentUris.withAppendedId(
+                uri,
+                sakeId
+        );
+        selection = UnifiedDataColumns.DataColumns._ID + "=?";
+        selectionArgs = new String[]{Long.toString(sakeId)};
+        sakeCursor = getContentResolver().query(
+                sakeUri,
+                sakeProjection,
+                selection,
+                selectionArgs,
+                null
+        );
+        sakeCursor.moveToFirst();
+
+        foundBrand = sakeCursor.getString(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
+
+        //該当ユーザ記録ID取得
+        userRecordUri = UnifiedDataContentProvider.CONTENT_URI_USER_RECORD;
+        selection = UnifiedDataColumns.DataColumns._ID + "=?";
+        selectionArgs = new String[]{Long.toString(userRecordId)};
+        userRecordCursor = getContentResolver().query(
+                userRecordUri,
+                userRecordProjection,
+                selection,
+                selectionArgs,
+                null
+        );
+        userRecordCursor.moveToFirst();
+
+
+        foundDate = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE));
+        tastedDate = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE));
+    }
+
+    private void setUserRecordData() {
+        userRecordId = intent.getLongExtra(EXTRA_USER_RECORD_ID, 0L);
+        userRecordUri = UnifiedDataContentProvider.CONTENT_URI_USER_RECORD;
+        selection = UnifiedDataColumns.DataColumns._ID + "=?";
+        selectionArgs = new String[]{Long.toString(userRecordId)};
+        userRecordCursor = getContentResolver().query(
+                userRecordUri,
+                userRecordProjection,
+                selection,
+                selectionArgs,
+                null
+        );
+        userRecordCursor.moveToFirst();
+
+        totalGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE));
+        flavorGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE));
+        tasteGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE));
+        review = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_REVIEW));
+        imagePath = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE));
+
+        if (imagePath != null) {
+            setImage(imagePath);
+        }
+
+        //取得した評価値と同じ値を示しているリストアイテムの番地を識別
+        TypedArray totalTypedArray = getResources().obtainTypedArray(R.array.grade_list);
+        int totalGradeLength = totalTypedArray.length();
+        for (int i = 0; i < totalGradeLength; i++) {
+            if (totalGrade != null) {
+                if (totalGrade.equals(totalGradeSpinner.getItemAtPosition(i))) {
+                    totalGradeSpinner.setSelection(i);
+                }
+            } else {
+                totalGradeSpinner.setSelection(0);
+            }
+        }
+        TypedArray flavorTypedArray = getResources().obtainTypedArray(R.array.grade_list);
+        int flavorLength = flavorTypedArray.length();
+        for (int i = 0; i < flavorLength; i++) {
+            if (flavorGrade != null) {
+                if (flavorGrade.equals(flavorGradeSpinner.getItemAtPosition(i))) {
+                    flavorGradeSpinner.setSelection(i);
+                }
+            } else {
+                flavorGradeSpinner.setSelection(0);
+            }
+        }
+        TypedArray tasteTypedArray = getResources().obtainTypedArray(R.array.grade_list);
+        int tasteLength = tasteTypedArray.length();
+        for (int i = 0; i < tasteLength; i++) {
+            if (tasteGrade != null) {
+                if (tasteGrade.equals(tasteGradeSpinner.getItemAtPosition(i))) {
+                    tasteGradeSpinner.setSelection(i);
+                }
+            } else {
+                tasteGradeSpinner.setSelection(0);
+            }
+        }
+        reviewEdit.setText(review);
+        textView.setText(foundBrand + "の試飲記録編集");
+    }
+
+    private void setImage(String path) {
+        Bitmap bitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        int imageWidth = options.outWidth;
+        int imageHeight = options.outHeight;
+
+        Log.v(TAG, "oldSize_" + imageWidth + ":" + imageHeight);
+
+        int size = 1;
+        if (Math.max(imageWidth, imageHeight) > 640) {
+            size = Math.max(imageWidth, imageHeight) / 640;
+        }
+        options.inSampleSize = size;
+        options.inJustDecodeBounds = false;
+        bitmap = BitmapFactory.decodeFile(path, options);
+        Log.v(TAG, "newSize_" + bitmap.getWidth() + ":" + bitmap.getHeight());
+        imageView.setImageBitmap(bitmap);
     }
 
     @Override
@@ -278,248 +437,251 @@ public class TasteRegistrationActivity extends AppCompatActivity implements View
                 startActivityForResult(intent, REQUEST_CODE);
                 break;
             case R.id.button70:
-                if (!isRequestedNewMaster) {
-
-                    totalGrade = Integer.parseInt(totalGradeEdit.getText().toString().trim());
-                    flavorGrade = Integer.parseInt(flavorGradeEdit.getText().toString().trim());
-                    tasteGrade = Integer.parseInt(tasteGradeEdit.getText().toString().trim());
-                    review = reviewEdit.getText().toString().trim();
-
-                    image = imagePath;
-
-                    //試飲日生成
-                    userRecordsValues = new ContentValues();
-                    tastedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-                    long masterSakeId;
-                    if (isUserSake) {
-                        userSakeId = sakeId;
-                        masterSakeId = 0;
-                    } else {
-                        masterSakeId = sakeId;
-                        userSakeId = 0;
-                    }
-                    //試飲登録セット
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED, tastedDate);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE, totalGrade);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE, flavorGrade);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE, tasteGrade);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE, image);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_REVIEW, review);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID, masterSakeId);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID, userSakeId);
-                    //条件処理必要
-                    int setTrueInt = 1;
-                    sakeValues = new ContentValues();
-                    if (!hasFound) {
-                        //ユーザ情報挿入時
-                        //発見日の生成
-                        foundDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-                        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND, foundDate);
-
-                        //挿入
-                        getContentResolver().insert(
-                                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
-                        );
-                        Uri lastInsertedUri = getContentResolver().insert(
-                                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
-                        );
-                        userRecordId = ContentUris.parseId(lastInsertedUri);
-                    } else {
-                        //該当日本酒データIDを持っているユーザ記録を検索
-                        String[] projection = {
-                                UnifiedDataColumns.DataColumns._ID,
-                                UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND,
-                                UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED,
-                                UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
-                                UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
-                                UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
-                                UnifiedDataColumns.DataColumns.COLUMN_REVIEW,
-                                UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID,
-                                UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID
-                        };
-                        long id;
-                        String selectionColumn;
-                        Log.v("tag", String.valueOf(isUserSake));
-                        if (isUserSake) {
-                            id = userSakeId;
-                            selectionColumn = UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID;
-                        } else {
-                            id = sakeId;
-                            selectionColumn = UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID;
-                        }
-                        Uri userRecordUri = ContentUris.withAppendedId(
-                                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
-                                id
-                        );
-                        Cursor userRecordCursor = getContentResolver().query(
-                                userRecordUri,
-                                projection,
-                                selectionColumn + "=?",
-                                new String[]{Long.toString(id)},
-                                null
-                        );
-                        userRecordCursor.moveToFirst();
-                        userRecordId = userRecordCursor.getLong(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
-
-                        Uri uri = ContentUris.withAppendedId(
-                                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
-                                userRecordId
-                        );
-                        getContentResolver().update(
-                                uri,
-                                userRecordsValues,
-                                UnifiedDataColumns.DataColumns._ID + "=?",
-                                new String[]{Long.toString(userRecordId)}
-                        );
-                    }
-
-                    //試飲フラグの更新
-                    int hasTastedInt = setTrueInt;
-                    sakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED, hasTastedInt);
-                    //更新
-                    Uri uri;
-                    if (isUserSake) {
-                        uri = UnifiedDataContentProvider.CONTENT_URI_USER_SAKE;
-                    } else {
-                        uri = UnifiedDataContentProvider.CONTENT_URI_SAKE;
-                    }
-                    Uri updateUri = ContentUris.withAppendedId(
-                            uri,
-                            sakeId
-                    );
-                    getContentResolver().update(
-                            updateUri,
-                            sakeValues,
-                            UnifiedDataColumns.DataColumns._ID + "=?",
-                            new String[]{Long.toString(sakeId)}
-                    );
-                } else {
-                    //日本酒データ登録時
-
-                    //ローカル日本酒データ生成用入力文字列取得
-                    String brand = brandEdit.getText().toString().trim();
-                    String breweryName = breweryNameEdit.getText().toString().trim();
-                    String breweryAddress = breweryAddressEdit.getText().toString().trim();
-                    String category = categoryEdit.getText().toString().trim();
-                    int setTrueInt = 1;
-                    int hasFoundInt = setTrueInt;
-                    int hasTastedInt;
-                    if (hasTasted) {
-                        hasTastedInt = setTrueInt;
-                    } else {
-                        hasTastedInt = 0;
-                    }
-                    //データセット
-                    ContentValues userSakeValues = new ContentValues();
-
-//                    //初めてレコードが挿入される場合ID初期値をマスターテーブル最後尾+1とする
-//                    Cursor cursor = getContentResolver().query(
-//                            UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
-//                            null,
-//                            null,
-//                            null,
-//                            null
-//                    );
-//                    cursor.moveToFirst();
-//                    if (cursor == null || cursor.getCount() == 0) {
-//                        long _id;
-//                        String[] lastInsertProjection = {
-//                                UnifiedDataColumns.DataColumns._ID,
-//                                UnifiedDataColumns.DataColumns.COLUMN_BRAND
-//                        };
-//                        sakeCursor = getContentResolver().query(
-//                                UnifiedDataContentProvider.CONTENT_URI_SAKE,
-//                                lastInsertProjection,
-//                                LAST_INSERT_ROWID,
-//                                null,
-//                                null
-//                        );
-//                        sakeCursor.moveToFirst();
-//                        _id = sakeCursor.getLong(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
-//                        long masId = sakeCursor.getLong(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID));
-//                        Log.v("tag", String.valueOf(_id));
-//                        Log.v("tag", String.valueOf(masId));
-//                        long plusOneId = _id + 1L;
-//                        Log.v("tag", String.valueOf(plusOneId));
-//                        userSakeValues.put(UnifiedDataColumns.DataColumns._ID, _id + 1L);
-//                    }
-
-                    long masterSakeId = 0;
-                    userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_BRAND, brand);
-                    userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME, breweryName);
-                    userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS, breweryAddress);
-                    userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_CATEGORY, category);
-                    userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND, hasFoundInt);
-                    userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED, hasTastedInt);
-                    userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID, masterSakeId);
-
-                    //挿入
-                    getContentResolver().insert(
-                            UnifiedDataContentProvider.CONTENT_URI_USER_SAKE, userSakeValues
-                    );
-
-                    //挿入したレコードIDを取得する
-                    String[] userSakeProjection = {UnifiedDataColumns.DataColumns._ID};
-                    String userSakeSelection = LAST_INSERT_ROWID;
-                    Cursor insertedCursor = getContentResolver().query(
-                            UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
-                            userSakeProjection,
-                            userSakeSelection,
-                            null,
-                            null
-                    );
-                    insertedCursor.moveToFirst();
-                    sakeId = 0;
-                    userSakeId = insertedCursor.getLong(insertedCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
-
-                    //共通カラムのセット
-                    userRecordsValues = new ContentValues();
-                    foundDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND, foundDate);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID, masterSakeId);
-                    userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID, userSakeId);
-                    //試飲時追加生成
-                    if (hasTasted) {
-                        tastedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-                        totalGrade = Integer.parseInt(totalGradeEdit.getText().toString().trim());
-                        flavorGrade = Integer.parseInt(flavorGradeEdit.getText().toString().trim());
-                        tasteGrade = Integer.parseInt(tasteGradeEdit.getText().toString().trim());
-                        review = reviewEdit.getText().toString().trim();
-                        image = imagePath;
-
-                        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED, tastedDate);
-                        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE, totalGrade);
-                        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE, flavorGrade);
-                        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE, tasteGrade);
-                        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE, image);
-                        userRecordsValues.put(UnifiedDataColumns.DataColumns.COLUMN_REVIEW, review);
-                    }
-                    //ユーザ記録挿入
-                    getContentResolver().insert(
-                            UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
-                    );
-                    Uri lastInsertedUri = getContentResolver().insert(
-                            UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS, userRecordsValues
-                    );
-                    userRecordId = ContentUris.parseId(lastInsertedUri);
-                }
-                Intent registrationIntent = new Intent(getApplicationContext(), TasteRegisteredDataActivity.class);
-                registrationIntent.putExtra(EXTRA_USER_SAKE_ID, userSakeId);
-                registrationIntent.putExtra(TasteActivity.EXTRA_USER_RECORDS_ID, userRecordId);
-                registrationIntent.putExtra(TasteNoDataActivity.EXTRA_REQUEST, isRequestedNewMaster);
-                registrationIntent.putExtra(TasteNoDataActivity.EXTRA_HAS_TASTED, hasTasted);
-                registrationIntent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
-                if (isRequestedEdit) {
-                    setResult(RESULT_OK, registrationIntent);
-                } else {
-                    startActivity(registrationIntent);
-                }
-                finish();
+                registerUserRecord();
                 break;
             case R.id.button76:
                 finish();
                 break;
         }
+    }
+
+    private void registerUserRecord() {
+        if (!isRequestedNewMaster) {
+            //既存日本酒データへの試飲登録時（マスター、ローカル）
+            registerToSake();
+        } else {
+            //日本酒データ登録時
+            brand = brandEdit.getText().toString().trim();
+            if (!brand.isEmpty()) {
+                registerToNewUserSake();
+            } else {
+                Toast.makeText(this, "タイトルは必須入力", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        Intent registrationIntent = new Intent(getApplicationContext(), TasteRegisteredDataActivity.class);
+        registrationIntent.putExtra(EXTRA_ID, sakeId);
+        registrationIntent.putExtra(EXTRA_MASTER_SAKE_ID, masterSakeId);
+        registrationIntent.putExtra(EXTRA_USER_RECORD_ID, userRecordId);
+        registrationIntent.putExtra(EXTRA_IS_REQUESTED_NEW_MASTER, isRequestedNewMaster);
+        if (isRequestedEdit) {
+            setResult(RESULT_OK, registrationIntent);
+        } else if (isRequestedAdd) {
+            setResult(RESULT_OK, registrationIntent);
+        } else {
+            startActivity(registrationIntent);
+        }
+        finish();
+    }
+
+    private void registerToSake() {
+        review = reviewEdit.getText().toString().trim();
+        image = imagePath;
+        //試飲日生成
+        userRecordValues = new ContentValues();
+        tastedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+
+        if (uri == UnifiedDataContentProvider.CONTENT_URI_USER_SAKE) {
+            //ローカル日本酒データへの登録時
+            userSakeId = sakeId;
+            masterSakeId = 0;
+        } else {
+            //マスター日本酒データへの登録時
+            masterSakeId = sakeId;
+            userSakeId = 0;
+        }
+        //試飲登録セット
+        if (totalGrade != null) {
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE, totalGrade);
+        } else {
+            userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE);
+        }
+        if (flavorGrade != null) {
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE, flavorGrade);
+        } else {
+            userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE);
+        }
+        if (tasteGrade != null) {
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE, tasteGrade);
+        } else {
+            userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE);
+        }
+        userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE, tastedDate);
+        userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE, image);
+        if (!review.isEmpty()) {
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_REVIEW, review);
+        } else {
+            userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_REVIEW);
+        }
+
+        sakeValues = new ContentValues();
+        if (foundDate != null) {
+            //更新
+            userRecordUri = ContentUris.withAppendedId(
+                    UnifiedDataContentProvider.CONTENT_URI_USER_RECORD,
+                    userRecordId
+            );
+            selection = UnifiedDataColumns.DataColumns._ID + "=?";
+            selectionArgs = new String[]{Long.toString(userRecordId)};
+            getContentResolver().update(
+                    userRecordUri,
+                    userRecordValues,
+                    selection,
+                    selectionArgs
+            );
+        } else {
+            //挿入
+            //発見日の生成
+            foundDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE, foundDate);
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID, masterSakeId);
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID, userSakeId);
+
+            Uri lastInsertedUri = getContentResolver().insert(
+                    UnifiedDataContentProvider.CONTENT_URI_USER_RECORD,
+                    userRecordValues
+            );
+            userRecordId = ContentUris.parseId(lastInsertedUri);
+        }
+    }
+
+    private void registerToNewUserSake() {
+        //ローカル日本酒データ生成用入力文字列取得
+        brand = brandEdit.getText().toString().trim();
+        breweryName = breweryNameEdit.getText().toString().trim();
+        category = categoryEdit.getText().toString().trim();
+        //データセット
+        ContentValues userSakeValues = new ContentValues();
+
+        //初めてレコードが挿入される場合ID初期値をマスターテーブル最後尾+1とする
+        userSakeCursor = getContentResolver().query(
+                UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                null,
+                null,
+                null,
+                null
+        );
+        userSakeCursor.moveToFirst();
+        //ローカル日本酒データ有無の識別
+        if (userSakeCursor == null || userSakeCursor.getCount() == 0) {
+            //無かった場合idをマスターid最後尾+1とする
+            sakeCursor = getContentResolver().query(UnifiedDataContentProvider.CONTENT_URI_SAKE,
+                    new String[]{UnifiedDataColumns.DataColumns._ID},
+                    null,
+                    null,
+                    UnifiedDataColumns.DataColumns._ID + " DESC LIMIT 1"
+            );
+            sakeCursor.moveToFirst();
+            if (sakeCursor != null && sakeCursor.getCount() > 0) {
+                userSakeId = sakeCursor.getLong(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+                sakeId = userSakeId + 1L;
+                userSakeValues.put(UnifiedDataColumns.DataColumns._ID, sakeId);
+            }
+        }
+
+        masterSakeId = 0;
+        userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_BRAND, brand);
+        if (!breweryName.isEmpty()) {
+            userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME, breweryName);
+        }
+        if (breweryAddress != null) {
+            userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS, breweryAddress);
+        } else {
+            userSakeValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS);
+        }
+        if (!category.isEmpty()) {
+            userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_CATEGORY, category);
+        }
+        userSakeValues.put(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID, masterSakeId);
+
+        //挿入
+        Uri lastInsertedSakeUri = getContentResolver().insert(
+                UnifiedDataContentProvider.CONTENT_URI_USER_SAKE, userSakeValues
+        );
+        userSakeId = ContentUris.parseId(lastInsertedSakeUri);
+        sakeId = userSakeId;
+
+        //共通カラムのセット
+        userRecordValues = new ContentValues();
+        foundDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        Log.v("foundDate", foundDate);
+        userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE, foundDate);
+        userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID, masterSakeId);
+        userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID, userSakeId);
+
+
+        String json = getString(R.string.json_sample);
+        String parsedText = "";
+        JSONObject rootObject = null;
+
+        try {
+            rootObject = new JSONObject(json);
+            parsedText = rootObject.toString(4);
+            Log.v("parsedText", parsedText);
+
+            GsonBuilder builder = new GsonBuilder();
+
+            builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+            Gson gson = builder.create();
+            JsonData jsonData = gson.fromJson(json, JsonData.class);
+
+            JsonData.HelpCategory helpCategory = new JsonData.HelpCategory();
+            helpCategory.setHelpCategoryId(2);
+            helpCategory.setHelpCategoryBody("追加ヘルプカテゴリ");
+            List<JsonData.HelpCategory> list = new ArrayList<>();
+
+//            List<JsonData.HelpCategory> list = jsonData.getHelpCategories();
+
+            list.add(helpCategory);
+
+            String json2 = gson.toJson(json);
+            String parsedText2 = "";
+            JSONObject rootObject2 = null;
+            try {
+                rootObject2 = new JSONObject(json);
+                parsedText2 = rootObject2.toString(4);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Log.v("parsedText", parsedText2);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //試飲時追加生成
+        if (hasTasted) {
+            tastedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+            review = reviewEdit.getText().toString().trim();
+            image = imagePath;
+
+            if (totalGrade != null) {
+                userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE, totalGrade);
+            } else {
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE);
+            }
+            if (flavorGrade != null) {
+                userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE, flavorGrade);
+            } else {
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE);
+            }
+            if (tasteGrade != null) {
+                userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE, tasteGrade);
+            } else {
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE);
+            }
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE, tastedDate);
+            userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE, image);
+            if (!review.isEmpty()) {
+                userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_REVIEW, review);
+            } else {
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_REVIEW);
+            }
+        }
+        //ユーザ記録挿入
+        Uri lastInsertedUri = getContentResolver().insert(
+                UnifiedDataContentProvider.CONTENT_URI_USER_RECORD, userRecordValues
+        );
+        userRecordId = ContentUris.parseId(lastInsertedUri);
     }
 
     @Override
@@ -530,7 +692,6 @@ public class TasteRegistrationActivity extends AppCompatActivity implements View
             switch (resultCode) {
                 case RESULT_OK:
 
-                    //重複
                     Bitmap bitmap = null;
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
@@ -573,5 +734,12 @@ public class TasteRegistrationActivity extends AppCompatActivity implements View
         String path = cursor.getString(0);
         cursor.close();
         return path;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        inputMethodManager.hideSoftInputFromWindow(layout.getWindowToken(), inputMethodManager.HIDE_NOT_ALWAYS);
+        layout.requestFocus();
+        return true;
     }
 }

@@ -16,18 +16,58 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_ID;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_IS_REQUESTED_BROWSE;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_IS_REQUESTED_EDIT;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_MASTER_SAKE_ID;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_IS_REQUESTED_NEW_MASTER;
+import static com.example.iwakiri.sakezukan_android.SakeConstants.EXTRA_USER_RECORD_ID;
+
 public class TasteRegisteredDataActivity extends AppCompatActivity implements View.OnClickListener {
 
-    public static final String EXTRA_IS_REQUESTED_EDIT = "EXTRA_IS_REQUESTED_EDIT";
     private static final int REQUEST_CODE = 1;
 
+    Uri sakeUri;
+    Uri userRecordUri;
+    Cursor sakeCursor;
+    Cursor userRecordCursor;
     private long sakeId;
     private long userRecordId;
-    private long userSakeId;
     private long masterSakeId;
     Boolean isRequestedNewMaster;
-    Boolean hasTasted;
-    Boolean isUserSake;
+    Boolean isRequestedBrowse;
+    private String[] sakeProjection = {
+            UnifiedDataColumns.DataColumns._ID,
+            UnifiedDataColumns.DataColumns.COLUMN_BRAND,
+            UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME,
+            UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS,
+            UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT,
+            UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT,
+            UnifiedDataColumns.DataColumns.COLUMN_CATEGORY,
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID
+    };
+    private String[] userRecordProjection = {
+            UnifiedDataColumns.DataColumns._ID,
+            UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE,
+            UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE,
+            UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
+            UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE,
+            UnifiedDataColumns.DataColumns.COLUMN_REVIEW,
+            UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID,
+            UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID
+    };
+    private String selection = null;
+    private String[] selectionArgs = null;
+
+    LinearLayout linearLayout2;
+    LinearLayout linearLayout3;
 
     TextView textView37;
     TextView textView38;
@@ -35,6 +75,10 @@ public class TasteRegisteredDataActivity extends AppCompatActivity implements Vi
     TextView textView40;
     TextView textView41;
     TextView textView42;
+    TextView textView45;
+    TextView textView46;
+    TextView textView47;
+    TextView textView48;
     ImageView imageView;
 
     @Override
@@ -48,93 +92,143 @@ public class TasteRegisteredDataActivity extends AppCompatActivity implements Vi
         deleteButton.setOnClickListener(this);
         editButton.setOnClickListener(this);
         finishButton.setOnClickListener(this);
-        LinearLayout linearLayout2 = (LinearLayout) findViewById(R.id.linearLayout2);
-        LinearLayout linearLayout3 = (LinearLayout) findViewById(R.id.linearLayout3);
+        linearLayout2 = (LinearLayout) findViewById(R.id.linearLayout2);
+        linearLayout3 = (LinearLayout) findViewById(R.id.linearLayout3);
         textView37 = (TextView) findViewById(R.id.textView37);
         textView38 = (TextView) findViewById(R.id.textView38);
         textView39 = (TextView) findViewById(R.id.textView39);
         textView40 = (TextView) findViewById(R.id.textView40);
         textView41 = (TextView) findViewById(R.id.textView41);
         textView42 = (TextView) findViewById(R.id.textView42);
-        TextView textView45 = (TextView) findViewById(R.id.textView45);
-        TextView textView46 = (TextView) findViewById(R.id.textView46);
-        TextView textView47 = (TextView) findViewById(R.id.textView47);
-        TextView textView48 = (TextView) findViewById(R.id.textView48);
+        TextView textView20 = (TextView) findViewById(R.id.textView20);
+        textView45 = (TextView) findViewById(R.id.textView45);
+        textView46 = (TextView) findViewById(R.id.textView46);
+        textView47 = (TextView) findViewById(R.id.textView47);
+        textView48 = (TextView) findViewById(R.id.textView48);
         imageView = (ImageView) findViewById(R.id.imageView5);
 
         Intent intent = getIntent();
-        sakeId = intent.getLongExtra(FindActivity.EXTRA_ID, 0L);
-        masterSakeId = intent.getLongExtra(GuideActivity.EXTRA_MASTER_SAKE_ID, 0L);
-        userRecordId = intent.getLongExtra(TasteActivity.EXTRA_USER_RECORDS_ID, 0L);
-        userSakeId = intent.getLongExtra(TasteRegistrationActivity.EXTRA_USER_SAKE_ID, 0L);
-        isRequestedNewMaster = intent.getBooleanExtra(TasteNoDataActivity.EXTRA_REQUEST, false);
-        hasTasted = intent.getBooleanExtra(TasteNoDataActivity.EXTRA_HAS_TASTED, true);
-        isUserSake = intent.getBooleanExtra(FindActivity.EXTRA_IS_USER_SAKE, false);
+        sakeId = intent.getLongExtra(EXTRA_ID, 0L);
+        masterSakeId = intent.getLongExtra(EXTRA_MASTER_SAKE_ID, 0L);
+        userRecordId = intent.getLongExtra(EXTRA_USER_RECORD_ID, 0L);
+        isRequestedNewMaster = intent.getBooleanExtra(EXTRA_IS_REQUESTED_NEW_MASTER, false);
+        isRequestedBrowse = intent.getBooleanExtra(EXTRA_IS_REQUESTED_BROWSE, false);
 
-        linearLayout2.setVisibility(View.GONE);
-        if (isRequestedNewMaster) {
-            linearLayout2.setVisibility(View.VISIBLE);
-            if (!hasTasted) {
-                linearLayout3.setVisibility(View.GONE);
-            }
-            Uri insertedUserSakeUri = ContentUris.withAppendedId(
-                    UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
-                    userSakeId
-            );
-            String[] insertedUserSakeProjection = {
-                    UnifiedDataColumns.DataColumns._ID,
-                    UnifiedDataColumns.DataColumns.COLUMN_BRAND,
-                    UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME,
-                    UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS,
-                    UnifiedDataColumns.DataColumns.COLUMN_CATEGORY
-            };
-            Cursor insertedUserSakeCursor = getContentResolver().query(
-                    insertedUserSakeUri,
-                    insertedUserSakeProjection,
-                    UnifiedDataColumns.DataColumns._ID + "=?",
-                    new String[]{Long.toString(userSakeId)},
-                    null
-            );
-            insertedUserSakeCursor.moveToFirst();
-
-            masterSakeId = insertedUserSakeCursor.getLong(insertedUserSakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
-
-            textView48.setText(insertedUserSakeCursor.getString(insertedUserSakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND)));
-            textView47.setText(insertedUserSakeCursor.getString(insertedUserSakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME)));
-            textView46.setText(insertedUserSakeCursor.getString(insertedUserSakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS)));
-            textView45.setText(insertedUserSakeCursor.getString(insertedUserSakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_CATEGORY)));
+        deleteButton.setVisibility(View.GONE);
+        editButton.setVisibility(View.GONE);
+        if (isRequestedBrowse) {
+            textView20.setText("試飲記録閲覧");
+            deleteButton.setVisibility(View.VISIBLE);
+            editButton.setVisibility(View.VISIBLE);
         }
 
-        queryEditRecord();
+        linearLayout2.setVisibility(View.GONE);
 
+        userRecordUri = UnifiedDataContentProvider.CONTENT_URI_USER_RECORD;
+        selection = UnifiedDataColumns.DataColumns._ID + "=?";
+        selectionArgs = new String[]{Long.toString(userRecordId)};
+        //受け取った試飲記録idからレコード問い合わせ
+        userRecordCursor = getContentResolver().query(
+                userRecordUri,
+                userRecordProjection,
+                selection,
+                selectionArgs,
+                null
+        );
+        userRecordCursor.moveToFirst();
+        if (isRequestedNewMaster) {
+            displaySakeData();
+        }
+
+        displayUserRecord();
+
+    }
+
+    private void displaySakeData() {
+        linearLayout2.setVisibility(View.VISIBLE);
+
+        String tastedDate = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE));
+        if (tastedDate == null) {
+            linearLayout3.setVisibility(View.GONE);
+        }
+        sakeUri = ContentUris.withAppendedId(
+                UnifiedDataContentProvider.CONTENT_URI_USER_SAKE,
+                sakeId
+        );
+        selection = UnifiedDataColumns.DataColumns._ID + "=?";
+        selectionArgs = new String[]{Long.toString(sakeId)};
+        sakeCursor = getContentResolver().query(
+                sakeUri,
+                sakeProjection,
+                selection,
+                selectionArgs,
+                null
+        );
+        sakeCursor.moveToFirst();
+
+        masterSakeId = sakeCursor.getLong(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
+
+        String brand = sakeCursor.getString(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BRAND));
+        String breweryName = sakeCursor.getString(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_NAME));
+        String breweryAddress = sakeCursor.getString(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_BREWERY_ADDRESS));
+        String category = sakeCursor.getString(sakeCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_CATEGORY));
+        if (brand != null) {
+            textView48.setText(brand);
+        }
+        if (breweryName != null) {
+            textView47.setText(breweryName);
+        }
+        if (breweryAddress != null) {
+            textView46.setText(breweryAddress);
+        }
+        if (category != null) {
+            textView45.setText(category);
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button11:
-                Intent intent = new Intent();
-                Uri uri = ContentUris.withAppendedId(
-                        UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
+                //発見日以外をnullにする更新
+                ContentValues userRecordValues = new ContentValues();
+
+                //試飲登録セット
+
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE);
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE);
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE);
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE);
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE);
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_REVIEW);
+
+                userRecordUri = ContentUris.withAppendedId(
+                        UnifiedDataContentProvider.CONTENT_URI_USER_RECORD,
                         userRecordId
                 );
-                getContentResolver().delete(
-                        uri,
+                selection = UnifiedDataColumns.DataColumns._ID + "=?";
+                selectionArgs = new String[]{Long.toString(userRecordId)};
+                getContentResolver().update(
+                        userRecordUri,
+                        userRecordValues,
                         UnifiedDataColumns.DataColumns._ID + "=?",
                         new String[]{Long.toString(userRecordId)}
                 );
 
-                intent.putExtra(FindActivity.EXTRA_ID, sakeId);
-                intent.putExtra(GuideActivity.EXTRA_MASTER_SAKE_ID, masterSakeId);
+                Intent intent = new Intent();
+                Log.v("userRecordId", String.valueOf(userRecordId));
+
+                intent.putExtra(EXTRA_ID, sakeId);
+                intent.putExtra(EXTRA_MASTER_SAKE_ID, masterSakeId);
                 setResult(RESULT_OK, intent);
                 finish();
                 break;
             case R.id.button10:
                 Intent editIntent = new Intent(this, TasteRegistrationActivity.class);
                 boolean isRequestedEdit = true;
-                editIntent.putExtra(FindActivity.EXTRA_IS_USER_SAKE, isUserSake);
-                editIntent.putExtra(FindActivity.EXTRA_ID, sakeId);
-                editIntent.putExtra(TasteActivity.EXTRA_USER_RECORDS_ID, userRecordId);
+                editIntent.putExtra(EXTRA_ID, sakeId);
+                editIntent.putExtra(EXTRA_MASTER_SAKE_ID, masterSakeId);
+                editIntent.putExtra(EXTRA_USER_RECORD_ID, userRecordId);
                 editIntent.putExtra(EXTRA_IS_REQUESTED_EDIT, isRequestedEdit);
                 setResult(RESULT_OK, editIntent);
                 startActivityForResult(editIntent, REQUEST_CODE);
@@ -150,50 +244,73 @@ public class TasteRegisteredDataActivity extends AppCompatActivity implements Vi
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                userRecordId = data.getLongExtra(TasteActivity.EXTRA_USER_RECORDS_ID, 0L);
-                queryEditRecord();
+                userRecordId = data.getLongExtra(EXTRA_USER_RECORD_ID, 0L);
+                userRecordUri = UnifiedDataContentProvider.CONTENT_URI_USER_RECORD;
+                selection = UnifiedDataColumns.DataColumns._ID + "=?";
+                selectionArgs = new String[]{Long.toString(userRecordId)};
+                userRecordCursor = getContentResolver().query(
+                        userRecordUri,
+                        userRecordProjection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                userRecordCursor.moveToFirst();
+                displayUserRecord();
             }
         }
     }
 
-    private void queryEditRecord() {
-        Uri userRecordUri = ContentUris.withAppendedId(
-                UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
-                userRecordId
-        );
-        String[] userRecordProjection = {
-                UnifiedDataColumns.DataColumns._ID,
-                UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND,
-                UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED,
-                UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE,
-                UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE,
-                UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE,
-                UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE,
-                UnifiedDataColumns.DataColumns.COLUMN_REVIEW
-        };
-        Cursor userRecordCursor = getContentResolver().query(
-                userRecordUri,
-                userRecordProjection,
-                UnifiedDataColumns.DataColumns._ID + "=?",
-                new String[]{Long.toString(userRecordId)},
-                null
-        );
-        userRecordCursor.moveToFirst();
+    private void displayUserRecord() {
 
-        textView37.setText(userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND)));
-        textView38.setText(userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED)));
-        textView39.setText(userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE)));
-        textView40.setText(userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE)));
-        textView41.setText(userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE)));
-        textView42.setText(userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_REVIEW)));
+        String foundDate = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE));
+        String tastedDate = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE));
+        String totalGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE));
+        String flavorGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE));
+        String tasteGrade = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE));
+        String review = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_REVIEW));
+        String imagePath = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE));
+        textView37.setText(foundDate);
+        if (!"null".equals(tastedDate)) {
+            try {
+                parseDate(tastedDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            textView38.setText(tastedDate);
+        }
+        if (totalGrade != null) {
+            textView39.setText(totalGrade);
+        }
+        if (flavorGrade != null) {
+            textView40.setText(flavorGrade);
+        }
+        if (tasteGrade != null) {
+            textView41.setText(tasteGrade);
+        }
+        if (review != null) {
+            textView42.setText(review);
+        }
+        setImage(imagePath);
+    }
 
-        String imagePath = userRecordCursor.getString(userRecordCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE));
+    static String getTimeStr(Date d) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        return sdf.format(d);
+    }
 
-        if (imagePath != null) {
+    static String parseDate(String datestr) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+        Date d = sdf.parse(datestr);
+        return getTimeStr(d);
+    }
+
+    private void setImage(String path) {
+        if (path != null) {
             Bitmap bitmap = null;
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(imagePath, options);
+            BitmapFactory.decodeFile(path, options);
 
             int imageWidth = options.outWidth;
             int imageHeight = options.outHeight;
@@ -204,15 +321,15 @@ public class TasteRegisteredDataActivity extends AppCompatActivity implements Vi
             }
             options.inSampleSize = size;
             options.inJustDecodeBounds = false;
-            bitmap = BitmapFactory.decodeFile(imagePath, options);
+            bitmap = BitmapFactory.decodeFile(path, options);
             if (bitmap != null) {
                 imageView.setImageBitmap(bitmap);
             } else {
                 ContentValues userRecordValues = new ContentValues();
-                userRecordValues.put(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE, (byte[]) null);
+                userRecordValues.putNull(UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE);
 
                 Uri updateUri = ContentUris.withAppendedId(
-                        UnifiedDataContentProvider.CONTENT_URI_USER_RECORDS,
+                        UnifiedDataContentProvider.CONTENT_URI_USER_RECORD,
                         userRecordId
                 );
                 getContentResolver().update(

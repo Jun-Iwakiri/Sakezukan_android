@@ -11,10 +11,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "android_sakezukan";
-    public static final int DB_VERSION = 1;
+    //    public static final int DB_VERSION = 7;
+    public static final int DB_VERSION = 7;
 
-    public static final String CREATE_TABLE_USER_DATA =
-            "create table " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA + " (" +
+    public static final String CREATE_TABLE_USER_INFO =
+            "create table " + UnifiedDataColumns.DataColumns.TABLE_USER_INFO + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_USER_NAME + " text" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_LICENSE_NAME + " text" +
@@ -29,8 +30,6 @@ public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
                     "," + UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT + " real" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT + " real" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_CATEGORY + " text" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED + " integer" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID + " integer)";
 
     public static final String CREATE_TABLE_USER_SAKE =
@@ -42,25 +41,23 @@ public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
                     "," + UnifiedDataColumns.DataColumns.COLUMN_LOWER_ALCOHOL_CONTENT + " real" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_UPPER_ALCOHOL_CONTENT + " real" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_CATEGORY + " text" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_FOUND + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HAS_TASTED + " integer" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID + " integer)";
 
-    public static final String CREATE_TABLE_USER_RECORDS =
-            "create table " + UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS + " (" +
+    public static final String CREATE_TABLE_USER_RECORD =
+            "create table " + UnifiedDataColumns.DataColumns.TABLE_USER_RECORD + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_DATE_FOUND + " date" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_DATE_TASTED + " date" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE + " integer" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_USER_RECORDS_IMAGE + " text" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_FOUND_DATE + " date" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_TASTED_DATE + " date" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_TOTAL_GRADE + " text" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_FLAVOR_GRADE + " text" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_TASTE_GRADE + " text" +
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_USER_RECORD_IMAGE + " text" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_REVIEW + " text" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_MASTER_SAKE_ID + " integer" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_USER_SAKE_ID + " integer)";
 
-    public static final String CREATE_TABLE_INFORMATIONS =
-            "create table " + UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS + " (" +
+    public static final String CREATE_TABLE_INFORMATION =
+            "create table " + UnifiedDataColumns.DataColumns.TABLE_INFORMATION + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_INFORMATION_TITLE + " text" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_INFORMATION_BODY + " text)";
@@ -68,17 +65,17 @@ public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
     public static final String CREATE_TABLE_HELP_CATEGORY =
             "create table " + UnifiedDataColumns.DataColumns.TABLE_HELP_CATEGORY + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
-                    "," + UnifiedDataColumns.DataColumns.COLUMN_HELP_CATEGORY + " text)";
+                    "," + UnifiedDataColumns.DataColumns.COLUMN_HELP_CATEGORY_BODY + " text)";
 
-    public static final String CREATE_TABLE_HELP_CONTENTS =
-            "create table " + UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENTS + " (" +
+    public static final String CREATE_TABLE_HELP_CONTENT =
+            "create table " + UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENT + " (" +
                     UnifiedDataColumns.DataColumns._ID + " integer primary key autoincrement" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_HELP_CATEGORY_ID + " integer" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_HELP_TITLE + " text" +
                     "," + UnifiedDataColumns.DataColumns.COLUMN_HELP_BODY + " text)";
 
-    public static final String DROP_TABLE_USER_DATA =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_DATA;
+    public static final String DROP_TABLE_USER_INFO =
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_INFO;
 
     public static final String DROP_TABLE_SAKE =
             "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_SAKE;
@@ -86,59 +83,59 @@ public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
     public static final String DROP_TABLE_USER_SAKE =
             "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_SAKE;
 
-    public static final String DROP_TABLE_USER_RECORDS =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_RECORDS;
+    public static final String DROP_TABLE_USER_RECORD =
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_USER_RECORD;
 
-    public static final String DROP_TABLE_INFORMATIONS =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_INFORMATIONS;
+    public static final String DROP_TABLE_INFORMATION =
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_INFORMATION;
 
     public static final String DROP_TABLE_HELP_CATEGORY =
             "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_HELP_CATEGORY;
 
-    public static final String DROP_TABLE_HELP_CONTENTS =
-            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENTS;
+    public static final String DROP_TABLE_HELP_CONTENT =
+            "drop table if exists " + UnifiedDataColumns.DataColumns.TABLE_HELP_CONTENT;
 
-    public static final String INIT_TABLE_USER_DATA =
-            "insert into user_data (user_name,license_name,license_number) values" +
+    public static final String INIT_TABLE_USER_INFO =
+            "insert into user_info (user_name,license_name,license_number) values" +
                     "('ユーザーネーム','日本酒資格名','1234567')";
 
     public static final String INIT_TABLE_SAKE =
-            "insert into sake (brand,brewery_name,brewery_address,lower_alcohol_content,upper_alcohol_content,category,has_found,has_tasted,master_sake_id) values" +
-                    "('あいうえお','田中酒造','東京','12.3','13.4','純米大吟醸','0','0','1')," +
-                    "('かきくけこ','佐藤酒造','大阪','14.5','15.6','純米酒','1','0','2')," +
-                    "('さしすせそ','山本酒造','北海道','10.1','11.2','大吟醸','1','1','3')," +
-                    "('たちつてと','高橋酒造','沖縄','9.8','10.9','大吟醸','1','1','4')";
+            "insert into sake (brand,brewery_name,brewery_address,lower_alcohol_content,upper_alcohol_content,category,master_sake_id) values" +
+                    "('あいうえお','田中酒造','東京','12.3','13.4','純米大吟醸','1')," +
+                    "('あいうえ','田中酒造','大阪','14.5','15.6','純米酒','2')," +
+                    "('さしすせそ','田中酒造','北海道','10.1','11.2','大吟醸','3')," +
+                    "('たちつてと','山本酒造','沖縄','9.8','10.9','大吟醸','4')";
 
     public static final String INIT_TABLE_USER_SAKE =
-            "insert into user_sake (brand,brewery_name,brewery_address,lower_alcohol_content,upper_alcohol_content,category,has_found,has_tasted,master_sake_id) values" +
-                    "('なにぬねの','田中酒造','東京','12.3','13.4','純米大吟醸','1','0','0')," +
-                    "('はひふへほ','佐藤酒造','大阪','14.5','15.6','純米酒','1','0','0')," +
-                    "('まみむめも','山本酒造','北海道','10.1','11.2','大吟醸','1','0','0')," +
-                    "('らりるれろ','高橋酒造','沖縄','9.8','10.9','大吟醸','1','0','0')";
+            "insert into user_sake (_id,brand,brewery_name,brewery_address,lower_alcohol_content,upper_alcohol_content,category,master_sake_id) values" +
+                    "('5','なにぬねの','田中酒造','東京','12.3','13.4','純米大吟醸','0')," +
+                    "('6','あ','佐藤酒造','大阪','14.5','15.6','純米酒','0')," +
+                    "('7','まみむめも','山本酒造','北海道','10.1','11.2','大吟醸','0')," +
+                    "('8','あいう','高橋酒造','沖縄','9.8','10.9','大吟醸','0')";
 
-    public static final String INIT_TABLE_USER_RECORDS =
-            "insert into user_records (date_found,date_tasted,total_grade,flavor_grade,taste_grade,user_records_image,review,master_sake_id,user_sake_id) values" +
+    public static final String INIT_TABLE_USER_RECORD =
+            "insert into user_record (found_date,tasted_date,total_grade,flavor_grade,taste_grade,user_record_image,review,master_sake_id,user_sake_id) values" +
                     "('2017-03-22',null,null,null,null,null,null,'1','0')," +
-                    "('2016-08-26','2016-10-12','3','2','3',null,'さしすせその試飲記録','3','0')," +
+                    "('2016-08-26','2016-10-12','null','2','0',null,'さしすせその試飲記録','3','0')," +
                     "('2014-03-21','2016-04-17','4','3','4',null,'たちつてとの試飲記録','4','0')," +
-                    "('2017-04-19',null,null,null,null,null,null,'0','1')," +
-                    "('2017-04-28',null,null,null,null,null,null,'0','2')," +
-                    "('2017-05-04',null,null,null,null,null,null,'0','3')," +
-                    "('2017-05-11',null,null,null,null,null,null,'0','4')";
+                    "('2017-04-19',null,null,null,null,null,null,'0','5')," +
+                    "('2017-04-28',null,null,null,null,null,null,'0','6')," +
+                    "('2017-05-04',null,null,null,null,null,null,'0','7')," +
+                    "('2017-05-11','2017-05-13','2','3','4',null,'あいうの試飲記録','0','8')";
 
-    public static final String INIT_TABLE_INFORMATIONS =
-            "insert into informations (information_title,information_body) values" +
+    public static final String INIT_TABLE_INFORMATION =
+            "insert into information (information_title,information_body) values" +
                     "('インフォメーションタイトル1','インフォメーションテキスト1')," +
                     "('インフォメーションタイトル2','インフォメーションテキスト2')";
 
     public static final String INIT_TABLE_HELP_CATEGORY =
-            "insert into help_category (help_category) values" +
+            "insert into help_category (help_category_body) values" +
                     "('ヘルプカテゴリ1')," +
                     "('ヘルプカテゴリ2')," +
                     "('ヘルプカテゴリ3')";
 
-    public static final String INIT_TABLE_HELP_CONTENTS =
-            "insert into help_contents (help_category_id,help_title,help_body) values" +
+    public static final String INIT_TABLE_HELP_CONTENT =
+            "insert into help_content (help_category_id,help_title,help_body) values" +
                     "('3','ヘルプタイトル1','ヘルプテキスト1')," +
                     "('1','ヘルプタイトル2','ヘルプテキスト2')," +
                     "('2','ヘルプタイトル3','ヘルプテキスト3')," +
@@ -152,31 +149,35 @@ public class UnifiedDataOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_USER_DATA);
+        db.execSQL(CREATE_TABLE_USER_INFO);
         db.execSQL(CREATE_TABLE_SAKE);
         db.execSQL(CREATE_TABLE_USER_SAKE);
-        db.execSQL(CREATE_TABLE_USER_RECORDS);
-        db.execSQL(CREATE_TABLE_INFORMATIONS);
+        db.execSQL(CREATE_TABLE_USER_RECORD);
+        db.execSQL(CREATE_TABLE_INFORMATION);
         db.execSQL(CREATE_TABLE_HELP_CATEGORY);
-        db.execSQL(CREATE_TABLE_HELP_CONTENTS);
-        db.execSQL(INIT_TABLE_USER_DATA);
-        db.execSQL(INIT_TABLE_SAKE);
-        db.execSQL(INIT_TABLE_USER_SAKE);
-        db.execSQL(INIT_TABLE_USER_RECORDS);
-        db.execSQL(INIT_TABLE_INFORMATIONS);
-        db.execSQL(INIT_TABLE_HELP_CATEGORY);
-        db.execSQL(INIT_TABLE_HELP_CONTENTS);
+        db.execSQL(CREATE_TABLE_HELP_CONTENT);
+//        db.execSQL(INIT_TABLE_USER_INFO);
+//        db.execSQL(INIT_TABLE_SAKE);
+//        db.execSQL(INIT_TABLE_USER_SAKE);
+//        db.execSQL(INIT_TABLE_USER_RECORD);
+//        db.execSQL(INIT_TABLE_INFORMATION);
+//        db.execSQL(INIT_TABLE_HELP_CATEGORY);
+//        db.execSQL(INIT_TABLE_HELP_CONTENT);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(DROP_TABLE_USER_DATA);
-        db.execSQL(DROP_TABLE_SAKE);
-        db.execSQL(DROP_TABLE_USER_SAKE);
-        db.execSQL(DROP_TABLE_USER_RECORDS);
-        db.execSQL(DROP_TABLE_INFORMATIONS);
-        db.execSQL(DROP_TABLE_HELP_CATEGORY);
-        db.execSQL(DROP_TABLE_HELP_CONTENTS);
+        if (oldVersion < newVersion) {
+            db.execSQL(DROP_TABLE_USER_INFO);
+            db.execSQL(DROP_TABLE_SAKE);
+            db.execSQL(DROP_TABLE_USER_SAKE);
+            db.execSQL(DROP_TABLE_USER_RECORD);
+            db.execSQL(DROP_TABLE_INFORMATION);
+            db.execSQL(DROP_TABLE_HELP_CATEGORY);
+            db.execSQL(DROP_TABLE_HELP_CONTENT);
+
+            onCreate(db);
+        }
     }
 
 }

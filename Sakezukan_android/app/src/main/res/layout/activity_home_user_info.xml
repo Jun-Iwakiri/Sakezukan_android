@@ -7,6 +7,7 @@
     tools:context="com.example.iwakiri.sakezukan_android.HomeUserInfoActivity">
 
     <LinearLayout
+        android:id="@+id/homeUserInfoLinearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="0dp"
@@ -49,7 +50,8 @@
                     android:id="@+id/userNameEdit"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="hint" />
+                    android:hint="ユーザ名"
+                    android:inputType="text" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -64,7 +66,8 @@
                     android:id="@+id/licenseNameEdit"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="hint" />
+                    android:hint="所有資格名"
+                    android:inputType="text" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -80,7 +83,8 @@
                     android:id="@+id/licenseNumberEdit"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="hint" />
+                    android:hint="hint"
+                    android:inputType="number" />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
 

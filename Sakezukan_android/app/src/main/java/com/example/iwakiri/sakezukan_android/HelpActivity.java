@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ public class HelpActivity extends AppCompatActivity implements View.OnClickListe
         tasteButton.setOnClickListener(this);
         findButton.setOnClickListener(this);
         helpButton.setOnClickListener(this);
+        TextView emptyView = (TextView) findViewById(R.id.textView19);
 
         //親の要素を格納
         List<Map<String, String>> parentList = new ArrayList<Map<String, String>>();
@@ -44,26 +46,26 @@ public class HelpActivity extends AppCompatActivity implements View.OnClickListe
         int helpCategoryId = 0;
         while (helpCategoryNext) {
             helpCategoryId = helpCategoryCursor.getInt(helpCategoryCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
-            String helpCategory = helpCategoryCursor.getString(helpCategoryCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_CATEGORY));
+            String helpCategoryBody = helpCategoryCursor.getString(helpCategoryCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_CATEGORY_BODY));
             Map<String, String> parentData = new HashMap<String, String>();
-            parentData.put(KEY1, helpCategory);
+            parentData.put(KEY1, helpCategoryBody);
             parentList.add(parentData);
             helpCategoryNext = helpCategoryCursor.moveToNext();
         }
 
         //子の要素を格納
         List<List<Map<String, String>>> allChildList = new ArrayList<List<Map<String, String>>>();
-        Cursor helpContentsCursor = getContentResolver().query(UnifiedDataContentProvider.CONTENT_URI_HELP_CONTENTS, null, null, null, null);
-        boolean helpContentNext = helpContentsCursor.moveToFirst();
+        Cursor helpContentCursor = getContentResolver().query(UnifiedDataContentProvider.CONTENT_URI_HELP_CONTENT, null, null, null, null);
+        boolean helpContentNext = helpContentCursor.moveToFirst();
         helpCategoryCursor = getContentResolver().query(UnifiedDataContentProvider.CONTENT_URI_HELP_CATEGORY, null, null, null, null);
         helpCategoryNext = helpCategoryCursor.moveToFirst();
         while (helpCategoryNext) {
             List<Map<String, String>> childList = new ArrayList<Map<String, String>>();
             helpCategoryId = helpCategoryCursor.getInt(helpCategoryCursor.getColumnIndex(UnifiedDataColumns.DataColumns._ID));
             while (helpContentNext) {
-                int cursorHelpCategoryId = helpContentsCursor.getInt(helpContentsCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_CATEGORY_ID));
-                String helpTitle = helpContentsCursor.getString(helpContentsCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_TITLE));
-                String helpBody = helpContentsCursor.getString(helpContentsCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_BODY));
+                int cursorHelpCategoryId = helpContentCursor.getInt(helpContentCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_CATEGORY_ID));
+                String helpTitle = helpContentCursor.getString(helpContentCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_TITLE));
+                String helpBody = helpContentCursor.getString(helpContentCursor.getColumnIndex(UnifiedDataColumns.DataColumns.COLUMN_HELP_BODY));
                 //カテゴリ識別処理
                 if (cursorHelpCategoryId == helpCategoryId) {
                     Map<String, String> childData = new HashMap<String, String>();
@@ -71,10 +73,10 @@ public class HelpActivity extends AppCompatActivity implements View.OnClickListe
                     childData.put(KEY2, helpBody);
                     childList.add(childData);
                 }
-                helpContentNext = helpContentsCursor.moveToNext();
+                helpContentNext = helpContentCursor.moveToNext();
             }
             allChildList.add(childList);
-            helpContentNext = helpContentsCursor.moveToFirst();
+            helpContentNext = helpContentCursor.moveToFirst();
             helpCategoryNext = helpCategoryCursor.moveToNext();
         }
 
@@ -91,6 +93,7 @@ public class HelpActivity extends AppCompatActivity implements View.OnClickListe
                         new int[]{android.R.id.text1, android.R.id.text2}
                 );
         ExpandableListView lv = (ExpandableListView) findViewById(R.id.expandableListView);
+        lv.setEmptyView(emptyView);
         lv.setAdapter(adapter);
     }
 
